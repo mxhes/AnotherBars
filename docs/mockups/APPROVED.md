@@ -12,6 +12,10 @@ from AnotherLedger's `Theme.lua` (`Theme.colors`, `Theme.edgeRects`,
 `Theme.skinScales`); every part is drawn in all four skins (Classic, Forge,
 Slate, Gilded) and tinted with the theme colors.
 
+**Gilded is withdrawn** (2026-11-26): the player wants it refined first. The
+Gilded parts below are no longer approved; a new Gilded design needs a new
+mockup (BACKLOG).
+
 Shared rules (all mockups):
 
 - **Panel**: `panelTint` (0.15, 0.10, 0.06) fill; border = the skin's
