@@ -25,6 +25,8 @@ Theme.textures = {
   skinDotted = "Interface\\AddOns\\AnotherBars\\Media\\Skins\\Dotted",
   -- A plain white tile for 1 px lines (edges and dividers).
   line = "Interface\\Buttons\\WHITE8X8",
+  -- A white disc (the pet autocast badge's ring lines and fill).
+  disc = "Interface\\AddOns\\AnotherBars\\Media\\Shapes\\Disc",
   -- The placeholder icon of Edit Mode samples.
   sampleIcon = "Interface\\Icons\\INV_Misc_QuestionMark",
 }
@@ -96,6 +98,30 @@ Theme.sizes = {
   -- to be to a screen line or another AnotherBars frame to snap onto it.
   snapDistance = 8,
 }
+
+-- The approved action button (docs/mockups/APPROVED.md §4, §7): overlays,
+-- the proc glow and the pet autocast badge. Sizes in px.
+Theme.button = {
+  swipeAlpha = 0.72,
+  pressed = { 0, 0, 0, 0.3 },
+  hover = { 1, 0.9, 0.59, 0.16 },
+  emptyAlpha = 0.75,
+  emptyShadow = { 0, 0, 0, 0.8 },
+  emptyShadowSize = 6,
+  macroColor = { 0.93, 0.87, 0.72, 1 },
+  activeEdge = 2,
+  activeGlow = 6,
+  activeGlowAlpha = 0.6,
+  studSize = 7,
+  roundEdgeSize = 8,
+  iconCrop = 0.08,
+  glow = { out = 5, line = 2, outer = 10, outerAlpha = 0.75, inner = 8, innerAlpha = 0.6,
+    alphaLow = 0.55, alphaHigh = 1, scaleHigh = 1.06, period = 1.1 },
+  badge = { size = 11, dot = 4, alphaLow = 0.7, alphaHigh = 1, period = 1.4 },
+}
+
+-- The ring line shades (outside in) of the round border (AnotherHUD).
+Theme.ringRoundShades = { 0.35, 1, 1, 0.45 }
 
 -- Pure. A color with r, g, b multiplied by `k` (clamped to 0..1); alpha kept.
 function Theme.scaleColor(c, k)

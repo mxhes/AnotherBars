@@ -21,6 +21,14 @@ function Util.isSecret(v)
   return not ok or secret == true
 end
 
+-- `v` unless it is a secret value (then nil): range, usable, checked and
+-- autocast flags from the client go through this before any branch.
+-- UNVERIFIED (check in client): issecretvalue exists on Forever.
+function Util.plain(v)
+  if Util.isSecret(v) then return nil end
+  return v
+end
+
 -- `v` when it is a readable, non-empty string, else nil.
 function Util.plainString(v)
   if type(v) ~= "string" or Util.isSecret(v) or v == "" then return nil end

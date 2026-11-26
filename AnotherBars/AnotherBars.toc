@@ -13,6 +13,7 @@ Core/Util.lua
 Core/Locale.lua
 Locales/deDE.lua
 Core/Theme.lua
+Core/Look.lua
 Core/DB.lua
 Core/Modules.lua
 Core/Combat.lua
@@ -20,8 +21,18 @@ Core/Options.lua
 Core/Bars.lua
 Core/Grid.lua
 Core/Layout.lua
+Skin/Blizzard.lua
+Skin/Draw.lua
+Skin/Glow.lua
+Skin/Button.lua
+Skin/Autocast.lua
+Skin/Procs.lua
+Bars/Common.lua
+Bars/ActionBar.lua
+Bars/Stance.lua
+Bars/Pet.lua
 EditMode/Panel.lua
 EditMode/System.lua
-Spike/Spike.lua
+UI/Settings.lua
 Core/Core.lua
 Boot.lua

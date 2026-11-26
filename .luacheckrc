@@ -28,4 +28,5 @@ globals = {
 read_globals = {
   "InCombatLockdown", "CreateFrame", "geterrorhandler", "hooksecurefunc",
   "LibStub", "Enum", "C_AddOns", "CreateColor", "GetTime",
+  "CreateFont",
 }

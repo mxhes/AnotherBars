@@ -84,5 +84,4 @@ h.test("no unit frame parts left in Theme", function()
   local Theme = load().Theme
   h.eq(Theme.unitColors, nil)
   h.eq(Theme.sizes.unit, nil)
-  h.eq(Theme.textures.disc, nil)
 end)
