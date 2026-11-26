@@ -4,6 +4,27 @@ What still has to be confirmed in the client, and the release steps.
 
 ## Open checks
 
+### Plan 3b proc glow
+
+- [x] Every listed spell's name resolves: `/dump C_Spell.GetSpellName(7384)`
+  (Overpower), 6572 (Revenge), 5308 (Execute), 14251 (Riposte), 19306
+  (Counterattack), 1495 (Mongoose Bite), 24275 (Hammer of Wrath).
+- [x] `/dump C_Spell.GetSpellCooldown(7384)` has `isActive` and `isOnGCD`
+  fields, and they are readable in combat (not secret).
+- [x] The glow does not blink off during the global cooldown (spam Execute
+  below 20%), but does go off while Revenge is on its own cooldown.
+- [x] Warrior: Overpower glows after the target dodges and stops on use / while
+  on cooldown; Revenge after a block, dodge or parry; Execute below 20%
+  target health. Paladin: Hammer of Wrath below 20%. A macro with the spell
+  glows too.
+- [x] No Lua errors in combat.
+
+Results:
+
+- 2026-11-26: every item passes in the client (spell names resolve,
+  `isActive` / `isOnGCD` readable, glows and stops as listed, no Lua errors).
+
+
 ### Plan 3 skin
 
 Copy the addon into the game folder, `/reload`, and compare with the mockup

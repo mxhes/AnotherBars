@@ -6,7 +6,7 @@ local ADDON, ns = ...
 --   back  (level - 1): the panel fill (Classic: the round tooltip edge too)
 --   cooldown          : Blizzard's, moved to level + 1 and restyled
 --   front (level + 2): edge lines, shading, active / hover / pressed / empty
---                      overlays, Gilded studs
+--                      overlays
 --   text  (level + 3): Blizzard's hotkey / count / macro name, re-parented
 --   glow  (level + 4): the proc glow (Skin/Glow.lua)
 -- Blizzard's own border, highlight, pushed, checked and flash textures go to
@@ -23,8 +23,6 @@ local wiredGlobal = false
 local function T() return ns.Theme end
 local function D() return ns.Skin.Draw end
 
-local CORNERS = { "TOPLEFT", "TOPRIGHT", "BOTTOMLEFT", "BOTTOMRIGHT" }
-local STUD_OFFSET = { TOPLEFT = { 1, -1 }, TOPRIGHT = { -1, -1 }, BOTTOMLEFT = { 1, 1 }, BOTTOMRIGHT = { -1, 1 } }
 
 function Button.state(b)
   return state[b]
@@ -134,9 +132,6 @@ local function onHover(b, over)
   showState(st)
 end
 
--- Proc glow diagnostics (/abars glow): how many alert shows reached us.
-Button.alerts = { shown = 0, skinned = 0 }
-
 -- The proc glow on / off (from Blizzard's alert hooks or Skin/Procs.lua).
 function Button.setProc(b, on)
   local st = state[b]
@@ -152,8 +147,6 @@ function Button.each(fn)
 end
 
 local function onAlertShow(b)
-  Button.alerts.shown = Button.alerts.shown + 1
-  if state[b] then Button.alerts.skinned = Button.alerts.skinned + 1 end
   Button.setProc(b, true)
 end
 
@@ -172,7 +165,7 @@ local function build(b)
   front:SetAllPoints(b)
   local text = CreateFrame("Frame", nil, b)
   text:SetAllPoints(b)
-  local st = { regions = regions, back = back, front = front, text = text, rects = {}, studs = {},
+  local st = { regions = regions, back = back, front = front, text = text, rects = {},
     inRange = true, checked = false, hover = false, pressed = false, isEmpty = false }
   st.fill = D().tile(back, "BACKGROUND")
   st.shade = D().rect(front, "ARTWORK")
@@ -183,13 +176,6 @@ local function build(b)
   st.activeGlow = D().strips(front, "ARTWORK", 2)
   st.pressedFill = D().tile(front, "ARTWORK", 3)
   st.hoverFill = D().tile(front, "ARTWORK", 4)
-  for _, corner in ipairs(CORNERS) do
-    local s = front:CreateTexture(nil, "OVERLAY", nil, 1)
-    s:SetTexture(T().textures.skinStud)
-    st.studs[#st.studs + 1] = s
-    st.studCorner = st.studCorner or {}
-    st.studCorner[s] = corner
-  end
   st.glow = ns.Skin.Glow.attach(b)
   return st
 end
@@ -259,18 +245,6 @@ local function layout(b, st, opts)
   end
   for i = #rects + 1, #st.rects do Dr.showAll(st.rects[i], false) end
   paintEdges(st)
-
-  -- studs (Gilded)
-  local studs = Th.edgeStuds(border)
-  for _, s in ipairs(st.studs) do
-    local corner = st.studCorner[s]
-    local off = STUD_OFFSET[corner]
-    s:ClearAllPoints()
-    s:SetSize(B.studSize, B.studSize)
-    s:SetPoint("CENTER", st.front, corner, off[1], off[2])
-    Dr.tint(s, Th.colors.panelBorder)
-    if studs then s:Show() else s:Hide() end
-  end
 
   -- icon and cooldown inside the edge
   local icon = st.regions.icon
@@ -362,19 +336,6 @@ function Button.relayoutAll()
     local st = state[b]
     if st then Button.skin(b, st.opts) end
   end
-end
-
--- /abars glow: which alert hook is in use, how many alert shows reached
--- us, and our glow toggled on Action Button 1 (to see it draw).
-function Button.glowCheck()
-  local a = Button.alerts
-  ns.Util.say(string.format("alert hook: %s, alerts seen: %d (skinned buttons: %d)",
-    tostring(ns.Skin.Blizzard.alertPath), a.shown, a.skinned))
-  local st = state[rawget(_G, "ActionButton1")]
-  if not st then return ns.Util.say("Action Button 1 is not skinned") end
-  st.glowTest = not st.glowTest
-  if st.glowTest then st.glow:show() else st.glow:hide() end
-  ns.Util.say("glow on Action Button 1: " .. (st.glowTest and "on" or "off"))
 end
 
 ns.Skin.Button = Button

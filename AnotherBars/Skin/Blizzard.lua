@@ -123,12 +123,10 @@ function Blizzard.onAlert(show, hide)
   if type(manager) == "table" and type(manager.ShowAlert) == "function" then
     Blizzard.hookOnce(manager, "ShowAlert", function(_, b) show(b) end)
     Blizzard.hookOnce(manager, "HideAlert", function(_, b) hide(b) end)
-    Blizzard.alertPath = "manager"
     return true
   end
   local a = Blizzard.hookOnce(_G, "ActionButton_ShowOverlayGlow", function(b) show(b) end)
   local c = Blizzard.hookOnce(_G, "ActionButton_HideOverlayGlow", function(b) hide(b) end)
-  Blizzard.alertPath = (a or c) and "globals" or "none"
   return a or c
 end
 

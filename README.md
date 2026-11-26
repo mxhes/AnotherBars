@@ -11,7 +11,9 @@ In development. What works so far:
   bar wears the suite's frame: the skin's border around the icon, the
   button shading, and the suite's hover, pressed, active and empty-slot
   looks. Out of range, out of mana and unusable spells are tinted, the
-  cooldown time shows in gold. Pet abilities that can cast on their own show a small round
+  cooldown time shows in gold. Reactive spells (such as Overpower,
+  Revenge, Execute, Riposte or Hammer of Wrath) pulse in gold while you can
+  use them. Pet abilities that can cast on their own show a small round
   badge: a gold dot while autocast is on, empty while it is off.
 - **Edit Mode.** Open Edit Mode and click a bar. Below Blizzard's own
   settings you find:
@@ -21,7 +23,7 @@ In development. What works so far:
     the font size.
   - **Settings**: opens the AnotherBars settings.
 - **Settings** (`/abars`, or the Settings button in Edit Mode): the skin
-  for all bars (Classic, Forge, Slate, Gilded) and which bars wear the
+  for all bars (Classic, Forge, Slate) and which bars wear the
   look. Turning a bar off brings Blizzard's look back after a `/reload`.
 - `/abars version` prints the version.
 

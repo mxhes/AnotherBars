@@ -55,6 +55,7 @@ is done by the build.
 | `Core/Layout.lua` | client glue: hook after Blizzard lays out a bar, move its buttons to our padding by changing only the offset on Blizzard's own anchor (main bar: each button's container), out of combat |
 | `EditMode/Panel.lua` | pure: a module's `settings` -> LibEditMode setting rows (from AnotherHUD) |
 | `EditMode/System.lua` | adds each bar module's settings to Blizzard's own bar panel (`AddSystemSettings`) |
+| `Core/Reactive.lua` | the reactive spell list per class and the glow rule (usable and not on cooldown) |
 | `Core/Look.lua` | pure look rules: skin of the profile, edge lines, shading, icon tints, text sizes |
 | `Skin/Blizzard.lua` | every Blizzard button region and hook name, in one place (missing names do nothing) |
 | `Skin/Draw.lua` | drawing helpers for our own frames: tinted tiles, line rects, gradient strips |
@@ -77,7 +78,7 @@ the weak table of `Skin/Button.lua`, never on the button):
 | --- | --- | --- |
 | back | button - 1 | the panel fill; Classic: the round tooltip edge (backdrop) |
 | Blizzard's cooldown | button + 1 | moved inside the edge, our swipe alpha and gold countdown font |
-| front | button + 2 | edge lines, shading, active edge and glow, hover / pressed / empty overlays, Gilded studs |
+| front | button + 2 | edge lines, shading, active edge and glow, hover / pressed / empty overlays |
 | text | button + 3 | Blizzard's hotkey, count and macro name, re-parented (off = alpha 0) |
 | glow | button + 4 | the proc glow |
 
@@ -90,11 +91,24 @@ the older overlay glow globals), and the pet bar's update with
 `GetPetActionInfo`. Hook bodies only show, hide and tint our regions and the
 icon.
 
-**Proc glow.** Blizzard's alert functions never reached our hook on Forever
-(`/abars glow` counted 0 alerts during procs), so `Skin/Procs.lua` drives the
-glow from `SPELL_ACTIVATION_OVERLAY_GLOW_SHOW` / `_HIDE` (spell id) and
-re-checks on slot, page and bonus bar changes; procs already up at login come
-from `IsSpellOverlayed`. The alert hooks stay as a second source.
+**Proc glow.** On Forever the game never signals a proc (no alert, no proc
+event; Plan 3 results in `docs/CHECKLIST.md`). `Skin/Procs.lua` lights a
+button when its spell, or the spell its macro casts, has the name of one of
+the player's reactive spells (`Core/Reactive.lua`), `IsUsableAction` says
+usable, and `C_Spell.GetSpellCooldown(id).isActive` is not true (no math on
+cooldown numbers; an unknown cooldown counts as off, and `isOnGCD` true
+means only the global cooldown, which does not hide the glow). It re-checks on
+usable, cooldown, slot, page, bonus bar, target, target health and stance
+events. The game's proc events (`SPELL_ACTIVATION_OVERLAY_GLOW_SHOW` /
+`_HIDE`, `IsSpellOverlayed` at login) and the alert hooks stay as a second
+source: a button glows when either says so.
+
+**Adding a reactive spell:** one line `{ id = <spell id>, name = "<name>" }`
+under the class token in `Reactive.SPELLS` (`Core/Reactive.lua`); a new
+class is a new key. Any rank's id works, since buttons match by name. The
+tests never name the shipped list, so no test changes; a test checks every
+entry is valid (`tests/test_reactive.lua`). Add a CHECKLIST line for the
+client check.
 
 **Secret values.** Every range, usable, mana, checked or autocast value from
 the client goes through `Util.plain(v)` (nil for a secret) before a branch;
