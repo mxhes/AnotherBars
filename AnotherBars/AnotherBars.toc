@@ -20,4 +20,7 @@ Core/Options.lua
 Core/Bars.lua
 Core/Grid.lua
 Core/Layout.lua
+EditMode/Panel.lua
+EditMode/System.lua
+Core/Core.lua
 Boot.lua

@@ -34,4 +34,7 @@ reasons are in `docs/superpowers/specs/2026-11-26-anotherbars-design.md`.
 | `Core/Bars.lua` | the ten Blizzard bars: frame, button prefix, count, Edit Mode system key |
 | `Core/Grid.lua` | pure padding math: Blizzard's rows / columns from button offsets, new offsets for our padding |
 | `Core/Layout.lua` | client glue: hook after Blizzard lays out a bar, re-anchor its buttons with our padding (out of combat) |
+| `EditMode/Panel.lua` | pure: a module's `settings` -> LibEditMode setting rows (from AnotherHUD) |
+| `EditMode/System.lua` | adds each bar module's settings to Blizzard's own bar panel (`AddSystemSettings`) |
+| `Core/Core.lua` | start-up and the `/abars` slash command |
 | `Boot.lua` | starts the addon on `ADDON_LOADED` |

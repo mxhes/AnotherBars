@@ -20,9 +20,12 @@ ignore = {
 -- Globals the addon sets: its saved variables.
 globals = {
   "AnotherBarsDB", "AnotherBarsCharDB",
+  -- the /abars slash command
+  "SLASH_ANOTHERBARS1", "SLASH_ANOTHERBARS2", "SlashCmdList",
 }
 
 -- WoW API the addon reads.
 read_globals = {
   "InCombatLockdown", "CreateFrame", "geterrorhandler", "hooksecurefunc",
+  "LibStub", "Enum", "C_AddOns", "CreateColor",
 }
