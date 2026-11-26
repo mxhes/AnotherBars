@@ -1,0 +1,29 @@
+# AnotherBars development
+
+Status: Plan 1 (foundation and client spike) in progress. The design and its
+reasons are in `docs/superpowers/specs/2026-11-26-anotherbars-design.md`.
+
+## Setup
+
+- Repo: https://github.com/mxhes/AnotherBars (`main`, changes through pull
+  requests).
+- Client: WoW Forever, `C:\Program Files (x86)\World of Warcraft\_forever_\`.
+  For testing in game, link the addon folder into `Interface\AddOns`:
+  `New-Item -ItemType Junction -Path "C:\Program Files (x86)\World of Warcraft\_forever_\Interface\AddOns\AnotherBars" -Target "D:\GitRepos\AnotherBars\AnotherBars"`.
+- `Libs/` is fetched by the packager (`.pkgmeta` externals). For a local copy
+  with Edit Mode, copy the `Libs` folder from the zip of the CI
+  `package-dry-run` artifact (Actions > CI > Run workflow) into
+  `AnotherBars/Libs/` (git-ignored). Or copy
+  https://github.com/p3lim-wow/LibEditMode (tag 19, `embed.xml` at its root)
+  into `AnotherBars/Libs/LibEditMode/`, plus LibStub and CallbackHandler-1.0
+  from their own releases. Never from another addon's copy (it may be
+  modified).
+- Tools: Lua 5.4 (local), luacheck, gh.
+
+## Code layout
+
+| Folder / file | What it holds |
+| --- | --- |
+| `AnotherBars.toc` | load order |
+| `embeds.xml` | LibStub, CallbackHandler, LibEditMode |
+| `Boot.lua` | starts the addon on `ADDON_LOADED` |

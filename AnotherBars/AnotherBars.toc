@@ -1,0 +1,12 @@
+## Interface: 16001
+## Title: AnotherBars
+## Notes: Blizzard's action bars in the Another suite's look, with Edit Mode settings.
+## Version: @project-version@
+## Author: Maximilian Henjes
+## X-Website: https://github.com/mxhes/AnotherBars
+## SavedVariables: AnotherBarsDB
+## SavedVariablesPerCharacter: AnotherBarsCharDB
+## OptionalDeps: LibStub, CallbackHandler-1.0, LibEditMode
+
+embeds.xml
+Boot.lua
