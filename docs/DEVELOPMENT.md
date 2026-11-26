@@ -1,8 +1,8 @@
 # AnotherBars development
 
-Status: Plan 1 built: core (from AnotherHUD), bar list, padding math, re-layout
-hook, settings on Blizzard's bar panels, and the client spike (waiting for
-the player's run). The design and its
+Status: Plan 1 (core, bar list, padding math, spike) done and checked in the
+client; Plan 3 (button skin, pet badge, Look / Text settings, Settings
+window) built, waiting for its client check. The design and its
 reasons are in `docs/superpowers/specs/2026-11-26-anotherbars-design.md`.
 
 ## Setup
@@ -55,6 +55,44 @@ is done by the build.
 | `Core/Layout.lua` | client glue: hook after Blizzard lays out a bar, move its buttons to our padding by changing only the offset on Blizzard's own anchor (main bar: each button's container), out of combat |
 | `EditMode/Panel.lua` | pure: a module's `settings` -> LibEditMode setting rows (from AnotherHUD) |
 | `EditMode/System.lua` | adds each bar module's settings to Blizzard's own bar panel (`AddSystemSettings`) |
-| `Spike/Spike.lua` | Plan 1 spike: one module per bar with "Spike: padding 0", re-layout log, `/abars spike log / alpha` (deleted in Plan 3) |
+| `Core/Look.lua` | pure look rules: skin of the profile, edge lines, shading, icon tints, text sizes |
+| `Skin/Blizzard.lua` | every Blizzard button region and hook name, in one place (missing names do nothing) |
+| `Skin/Draw.lua` | drawing helpers for our own frames: tinted tiles, line rects, gradient strips |
+| `Skin/Button.lua` | the approved button look on a Blizzard button (our back / front / text frames, states from hooks) |
+| `Skin/Glow.lua` | the gold pulse proc glow |
+| `Skin/Autocast.lua`, `Media/Shapes/Disc.tga` | the pet autocast badge (disc stack as AnotherHUD's ring) |
+| `Bars/Common.lua` | one module per bar: Look / Text settings, create skins its buttons |
+| `Bars/ActionBar.lua`, `Bars/Stance.lua`, `Bars/Pet.lua` | the ten bar modules (Pet adds the autocast badge) |
+| `UI/Settings.lua` | the Settings window: Blizzard's Settings panel, skin and bars on / off |
 | `Core/Core.lua` | start-up and the `/abars` slash command |
 | `Boot.lua` | starts the addon on `ADDON_LOADED` |
+
+## The button skin
+
+Each skinned button gets our frames, parented to the button (state in
+the weak table of `Skin/Button.lua`, never on the button):
+
+| Frame | Level | Holds |
+| --- | --- | --- |
+| back | button - 1 | the panel fill; Classic: the round tooltip edge (backdrop) |
+| Blizzard's cooldown | button + 1 | moved inside the edge, our swipe alpha and gold countdown font |
+| front | button + 2 | edge lines, shading, active edge and glow, hover / pressed / empty overlays, Gilded studs |
+| text | button + 3 | Blizzard's hotkey, count and macro name, re-parented (off = alpha 0) |
+| glow | button + 4 | the proc glow |
+
+Blizzard's normal, highlight, pushed, checked, flash, border and spell-alert
+textures go to alpha 0. Hooks (`Skin/Blizzard.lua`):
+`ActionButton_UpdateRangeIndicator`, the button's `Update` / `UpdateUsable` /
+`SetChecked` / `SetButtonState`, `OnEnter` / `OnLeave` / `OnMouseDown` /
+`OnMouseUp` (HookScript), the spell alert (`ActionButtonSpellAlertManager` or
+the older overlay glow globals), and the pet bar's update with
+`GetPetActionInfo`. Hook bodies only show, hide and tint our regions and the
+icon.
+
+**Secret values.** Every range, usable, mana, checked or autocast value from
+the client goes through `Util.plain(v)` (nil for a secret) before a branch;
+on nil the hook changes nothing, so Blizzard's own tint stays.
+
+**Relayout.** A skin change (Settings window) calls `Button.relayoutAll` and
+`Autocast.relayoutAll` out of combat; a bar setting re-skins that bar's
+buttons (`Button.skin` again only relayouts).

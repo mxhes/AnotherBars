@@ -4,6 +4,41 @@ What still has to be confirmed in the client, and the release steps.
 
 ## Open checks
 
+### Plan 3 skin
+
+Copy the addon into the game folder, `/reload`, and compare with the mockup
+pages in `docs/mockups/` (served from that folder). Results under
+"Results" at the end of this section.
+
+- [ ] The names in `Skin/Blizzard.lua` exist: `/dump ActionButton1.HotKey ~= nil`,
+  `/dump ActionButtonSpellAlertManager ~= nil` (or `ActionButton_ShowOverlayGlow`),
+  `/dump ActionButton_UpdateRangeIndicator ~= nil`,
+  `/dump PetActionButton1.AutoCastOverlay ~= nil` (or `AutoCastable`),
+  `/dump issecretvalue ~= nil`, `/dump Settings.RegisterProxySetting ~= nil`.
+- [ ] All four skins (Settings window) on Action Bar 1 look like `4-buttons.html`:
+  edge, shading, icon crop; Classic's round edge at button size; Gilded studs.
+- [ ] The back fill draws under the icon (our frame one level below the button).
+- [ ] States as on the mockup: hover, pressed (mouse and keybind), active
+  (auto attack, a stance), out of range (icon red, hotkey red), no mana,
+  unusable, cooldown swipe and gold time, empty slot while dragging a spell.
+- [ ] The proc glow pulses like the mockup and Blizzard's spell alert is gone.
+- [ ] Texts: hotkey, macro name and count on / off and the font size work per
+  bar and stay after `/reload`.
+- [ ] Pet bar: the badge as on `7-pet.html` (on, off, none); right-click on
+  an ability switches it.
+- [ ] Stance Bar: the active stance has the gold edge; switching stance in
+  combat moves it.
+- [ ] No Lua errors in combat (secret values) and no `AnotherBars` lines in the
+  taint log after a fight using every bar (`/console taintLog 1`).
+- [ ] Settings window: `/abars` and the Edit Mode Settings button open it; a
+  skin change applies at once; turning a bar off asks for `/reload` and
+  Blizzard's look is back after it; turning it on skins it at once.
+
+Results:
+
+- (not run yet)
+
+
 ### Plan 1 spike
 
 Setup first: `docs/DEVELOPMENT.md` ("Spike check"). Results go under
