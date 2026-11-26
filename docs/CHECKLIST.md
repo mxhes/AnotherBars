@@ -11,16 +11,16 @@ Setup first: `docs/DEVELOPMENT.md` ("Spike check"). Results go under
 "Spike: padding 0" checkbox to each Blizzard bar's Edit Mode panel and a chat
 line each time Blizzard lays out a bar.
 
-- [ ] Library loaded: `/dump LibStub and LibStub("LibEditMode", true) ~= nil` prints `true`.
-- [ ] `/dump Enum.EditModeActionBarSystemIndices` has the keys `Core/Bars.lua`
+- [x] Library loaded: `/dump LibStub and LibStub("LibEditMode", true) ~= nil` prints `true`.
+- [x] `/dump Enum.EditModeActionBarSystemIndices` has the keys `Core/Bars.lua`
   uses (MainBar, Bar2, Bar3, RightBar1, RightBar2, ExtraBar1-3, StanceBar,
   PetActionBar); each bar frame exists (`/dump MultiBar5 ~= nil`, `StanceBar`,
   `PetActionBar`, ...); `/dump MainMenuBar.UpdateGridLayout ~= nil` prints `true`.
-- [ ] `/abars` prints the version (`C_AddOns.GetAddOnMetadata`).
-- [ ] "Spike: padding 0" shows in each of the ten Blizzard bar panels. Turning
+- [x] `/abars` prints the version (`C_AddOns.GetAddOnMetadata`).
+- [x] "Spike: padding 0" shows in each of the ten Blizzard bar panels. Turning
   it on closes the gaps on that bar; button 1 does not move; Rows 2 and 3 and
   "# of Icons" 6 keep the bar's shape.
-- [ ] After leaving Edit Mode, `/reload`, and changing Icon Size and Padding in
+- [x] After leaving Edit Mode, `/reload`, and changing Icon Size and Padding in
   Blizzard's panel, our padding comes back after each change, and the gaps are
   right at Icon Size 50% and 200% (buttons share one scale).
 - [x] **Main bar after /reload:** padding 0 on for Action Bar 1, `/reload`
@@ -28,20 +28,20 @@ line each time Blizzard lays out a bar.
   them) and closed up. Blizzard moves the main bar's button containers after
   addon load, so the spike repacks only once the Edit Mode layout is in and
   keeps each button on its own container anchor.
-- [ ] **Re-layout in combat:** with the chat log on, fight a target dummy as a
+- [x] **Re-layout in combat:** with the chat log on, fight a target dummy as a
   Warrior (stance changes) and a Druid (form changes), as a pet class (summon /
   dismiss the pet) and in a vehicle if one is at hand. Write down every
   "laid out (in combat: yes)" line and its bar.
-- [ ] **Taint:** `/console taintLog 1`, `/reload`; padding 0 on all bars;
+- [x] **Taint:** `/console taintLog 1`, `/reload`; padding 0 on all bars;
   fight a dummy casting from every bar, change stance / form, open the
   spellbook and talents in combat. No "Interface action failed" / blocked
   message, and `_forever_\Logs\taint.log` has no `AnotherBars` lines.
-- [ ] **Fading:** `/abars spike alpha` in combat: the chat says "ok", Action
+- [x] **Fading:** `/abars spike alpha` in combat: the chat says "ok", Action
   Bar 2 goes to half opacity and its buttons still work; again sets it back.
   "ok" alone does not prove it: a blocked action is reported, not raised, so
   this also needs no "Interface action failed" / blocked message and no
   `AnotherBars` lines in the taint log for this step.
-- [ ] **Empty slots:** with "Always Show Buttons" off and padding 0 on, a bar
+- [x] **Empty slots:** with "Always Show Buttons" off and padding 0 on, a bar
   with an empty slot in the middle keeps the buttons after it in their
   columns. Then drag a spell (the empty slots show): note whether the empty
   slots appear at Blizzard's spacing and overlap ours (the spike re-anchors
@@ -53,7 +53,17 @@ lines in the taint log from re-anchoring drop padding from release 1.
 
 Results:
 
-- (not run yet)
+- 2026-11-26, all checks pass. Library loads, the ten panels show the
+  checkbox, padding 0 closes the gaps with button 1 fixed and survives
+  /reload and Blizzard's Icon Size / Padding changes. No taint (no blocked
+  actions, no AnotherBars lines in the taint log); SetAlpha in combat works;
+  empty slots keep the columns.
+- Action Bar 1 came out jumbled after /reload (its buttons sit in containers
+  Blizzard moves after addon load); fixed by repacking on each button's own
+  anchor after the Edit Mode layout lands (PR #4), then confirmed.
+- Re-layout in combat: only the Stance Bar printed "laid out", both in and
+  out of combat. Decision for Plan 4: the Stance Bar gets "Own padding" off
+  by default; all other bars on. Padding stays in release 1.
 
 ## Release steps
 
