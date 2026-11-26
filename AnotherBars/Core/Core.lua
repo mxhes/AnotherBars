@@ -1,0 +1,34 @@
+local ADDON, ns = ...
+
+-- Start-up, called by Boot.lua on ADDON_LOADED: saved state first, then our
+-- settings on Blizzard's bar panels, then the spike (Plan 1 only). Also the
+-- /abars slash command.
+local Core = {}
+
+-- Subcommands of /abars: Core.commands[name] = function(rest).
+Core.commands = {}
+
+-- UNVERIFIED (check in client): C_AddOns.GetAddOnMetadata on Forever.
+local function version()
+  local addons = C_AddOns
+  local v = addons and addons.GetAddOnMetadata and addons.GetAddOnMetadata(ADDON, "Version")
+  return type(v) == "string" and v or "dev"
+end
+
+function Core.slash(msg)
+  local name, rest = tostring(msg or ""):match("^%s*(%S*)%s*(.-)%s*$")
+  local fn = Core.commands[name:lower()]
+  if fn then return fn(rest) end
+  ns.Util.say("version " .. version())
+end
+
+function Core.init()
+  AnotherBarsDB, AnotherBarsCharDB = ns.DB.init(AnotherBarsDB, AnotherBarsCharDB)
+  ns.db, ns.chardb = AnotherBarsDB, AnotherBarsCharDB
+  SLASH_ANOTHERBARS1, SLASH_ANOTHERBARS2 = "/abars", "/anotherbars"
+  SlashCmdList.ANOTHERBARS = Core.slash
+  ns.EditMode.System.attachAll()
+  if ns.Spike then ns.Spike.start() end
+end
+
+ns.Core = Core
