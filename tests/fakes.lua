@@ -36,7 +36,22 @@ local function record(name, after)
     if after then after(self, ...) end
   end
 end
-record("SetPoint")
+-- SetPoint also keeps the anchor list (ClearAllPoints empties it), so
+-- GetNumPoints / GetPoint answer what was set. Geometry (GetLeft, ...) does
+-- not follow the anchors: tests set _left / _bottom themselves.
+record("SetPoint", function(self, point, rel, relPoint, x, y)
+  self._points = self._points or {}
+  for i, p in ipairs(self._points) do
+    if p[1] == point then table.remove(self._points, i); break end
+  end
+  self._points[#self._points + 1] = { point, rel, relPoint, x, y }
+end)
+record("ClearAllPoints", function(self) self._points = {} end)
+function methods.GetNumPoints(self) return self._points and #self._points or 0 end
+function methods.GetPoint(self, i)
+  local p = self._points and self._points[i or 1]
+  if p then return p[1], p[2], p[3], p[4], p[5] end
+end
 record("Show", function(self) self._shown = true end)
 record("Hide", function(self) self._shown = false end)
 record("SetParent", function(self, p) self._parent = p end)

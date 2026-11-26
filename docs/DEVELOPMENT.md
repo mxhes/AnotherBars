@@ -52,7 +52,7 @@ is done by the build.
 | `Core/Combat.lua` | `Combat.after(key, fn)`: queues work until combat ends |
 | `Core/Bars.lua` | the ten Blizzard bars: frame, button prefix, count, Edit Mode system key |
 | `Core/Grid.lua` | pure padding math: Blizzard's rows / columns from button offsets, new offsets for our padding |
-| `Core/Layout.lua` | client glue: hook after Blizzard lays out a bar, re-anchor its buttons with our padding (out of combat) |
+| `Core/Layout.lua` | client glue: hook after Blizzard lays out a bar, move its buttons to our padding by changing only the offset on Blizzard's own anchor (main bar: each button's container), out of combat |
 | `EditMode/Panel.lua` | pure: a module's `settings` -> LibEditMode setting rows (from AnotherHUD) |
 | `EditMode/System.lua` | adds each bar module's settings to Blizzard's own bar panel (`AddSystemSettings`) |
 | `Spike/Spike.lua` | Plan 1 spike: one module per bar with "Spike: padding 0", re-layout log, `/abars spike log / alpha` (deleted in Plan 3) |

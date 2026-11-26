@@ -38,12 +38,61 @@ for _, bar in ipairs(ns.Bars.list) do
   }
 end
 
+-- Diagnostic trace (debugging the jumbled Action Bar 1 after /reload):
+-- each entry records why it was taken and every button of the bar with its
+-- geometry and anchors, into AnotherBarsDB.spikeTrace (last TRACE_MAX
+-- entries, readable from the saved variables file after /reload).
+local TRACE_MAX = 60
+local traceBar = "bar1"
+
+local function round(v)
+  if type(v) ~= "number" then return v end
+  return math.floor(v * 10 + 0.5) / 10
+end
+
+local function snapshot(id)
+  local bar = ns.Bars.get(id)
+  local out = {}
+  for i = 1, bar.count do
+    local b = _G[bar.button .. i]
+    if b then
+      local points = {}
+      for p = 1, (b.GetNumPoints and b:GetNumPoints() or 0) do
+        local point, rel, relPoint, x, y = b:GetPoint(p)
+        points[p] = string.format("%s>%s:%s %s,%s", tostring(point),
+          rel and rel.GetName and rel:GetName() or tostring(rel), tostring(relPoint), tostring(round(x)), tostring(round(y)))
+      end
+      out[i] = string.format("%d shown=%s L=%s T=%s W=%s H=%s S=%s parent=%s | %s", i,
+        tostring(b:IsShown()), tostring(round(b:GetLeft())), tostring(round(b:GetTop())),
+        tostring(round(b:GetWidth())), tostring(round(b:GetHeight())), tostring(round(b:GetScale())),
+        b.GetParent and b:GetParent() and b:GetParent().GetName and tostring(b:GetParent():GetName()) or "?",
+        table.concat(points, " ; "))
+    end
+  end
+  return out
+end
+
+function Spike.trace(reason, id)
+  id = id or traceBar
+  if not ns.db then return end
+  local list = ns.db.spikeTrace
+  if type(list) ~= "table" then list = {}; ns.db.spikeTrace = list end
+  local now = type(GetTime) == "function" and GetTime() or 0
+  list[#list + 1] = { reason = reason, bar = id, time = round(now),
+    inCombat = type(InCombatLockdown) == "function" and InCombatLockdown() or false, buttons = snapshot(id) }
+  while #list > TRACE_MAX do table.remove(list, 1) end
+end
+
 local function onLayout(id, inCombat)
   local bar = ns.Bars.get(id)
+  if id == traceBar then Spike.trace("blizzard layout (before repack)", id) end
   if logging then
     ns.Util.say(string.format("%s laid out (in combat: %s)", bar.label, inCombat and "yes" or "no"))
   end
-  if padding0(id) then ns.Layout.repack(id, 0) end
+  if padding0(id) then
+    ns.Layout.repack(id, 0)
+    if id == traceBar then Spike.trace("after repack (layout)", id) end
+  end
 end
 
 local half = false
@@ -66,12 +115,30 @@ function Spike.command(rest)
   end
 end
 
-function Spike.start()
+-- Repacks every bar with padding0 on. Not at addon load: Blizzard applies
+-- the Edit Mode layout later (on the main bar it moves the button
+-- containers), so the repack waits for that.
+local function repackAll(reason)
   for _, bar in ipairs(ns.Bars.list) do
-    ns.Layout.watch(bar.id, onLayout)
     if padding0(bar.id) then ns.Layout.repack(bar.id, 0) end
   end
+  Spike.trace(reason)
+end
+
+function Spike.start()
+  if ns.db then ns.db.spikeTrace = {} end
+  Spike.trace("ADDON_LOADED")
+  for _, bar in ipairs(ns.Bars.list) do
+    ns.Layout.watch(bar.id, onLayout)
+  end
   if ns.Core then ns.Core.commands.spike = Spike.command end
+  if type(CreateFrame) == "function" then
+    local f = CreateFrame("Frame")
+    for _, ev in ipairs({ "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED" }) do
+      pcall(f.RegisterEvent, f, ev)
+    end
+    f:SetScript("OnEvent", function(_, event) repackAll(event .. " (after repack)") end)
+  end
 end
 
 ns.Spike = Spike

@@ -2,6 +2,8 @@ local h = ...
 local fakes = dofile("tests/fakes.lua")
 
 -- A fake bar1 (MainMenuBar) with three 36 px buttons in a row, 2 px apart.
+-- As on Forever's main bar, each button sits in its own container and is
+-- anchored CENTER to it (Blizzard's anchor); Blizzard moves the containers.
 local function setup(inCombat)
   local client = fakes.client({ inCombat = inCombat })
   local bar = fakes.frame("MainMenuBar")
@@ -9,8 +11,11 @@ local function setup(inCombat)
   _G.MainMenuBar = bar
   local buttons = {}
   for i = 1, 3 do
+    local c = fakes.frame("MainActionBarButtonContainer" .. i)
     local b = fakes.frame("ActionButton" .. i)
     b._left, b._bottom, b._width, b._height = 100 + (i - 1) * 38, 50, 36, 36
+    b._points = { { "CENTER", c, "CENTER", 0, 0 } }
+    b._container = c
     _G["ActionButton" .. i] = b
     buttons[i] = b
   end
@@ -42,8 +47,8 @@ h.test("repack moves buttons 2..n, never button 1", function()
   local ns, _, _, buttons, cleanup = setup(false)
   ns.Layout.repack("bar1", 0)
   h.eq(points(buttons[1]), {})
-  h.eq(points(buttons[2]), { { "TOPLEFT", buttons[1], "TOPLEFT", 36, 0 } })
-  h.eq(points(buttons[3]), { { "TOPLEFT", buttons[1], "TOPLEFT", 72, 0 } })
+  h.eq(points(buttons[2]), { { "CENTER", buttons[2]._container, "CENTER", -2, 0 } })
+  h.eq(points(buttons[3]), { { "CENTER", buttons[3]._container, "CENTER", -4, 0 } })
   cleanup()
 end)
 
@@ -54,7 +59,7 @@ h.test("relayout in combat queues the repack", function()
   h.eq(ns.Combat.pending(), 1)
   client.setCombat(false)
   client.fire("PLAYER_REGEN_ENABLED")
-  h.eq(points(buttons[2]), { { "TOPLEFT", buttons[1], "TOPLEFT", 36, 0 } })
+  h.eq(points(buttons[2]), { { "CENTER", buttons[2]._container, "CENTER", -2, 0 } })
   cleanup()
 end)
 
@@ -63,7 +68,7 @@ h.test("repack skips hidden buttons", function()
   buttons[3]._shown = false
   ns.Layout.repack("bar1", 0)
   h.eq(points(buttons[3]), {})
-  h.eq(points(buttons[2]), { { "TOPLEFT", buttons[1], "TOPLEFT", 36, 0 } })
+  h.eq(points(buttons[2]), { { "CENTER", buttons[2]._container, "CENTER", -2, 0 } })
   cleanup()
 end)
 
@@ -71,7 +76,60 @@ h.test("repack keeps the slot of a hidden middle button", function()
   local ns, _, _, buttons, cleanup = setup(false)
   buttons[2]._shown = false
   ns.Layout.repack("bar1", 0)
-  h.eq(points(buttons[3]), { { "TOPLEFT", buttons[1], "TOPLEFT", 72, 0 } })
+  h.eq(points(buttons[3]), { { "CENTER", buttons[3]._container, "CENTER", -4, 0 } })
+  cleanup()
+end)
+
+-- Moves a fake button by (dx, dy), as the client would after SetPoint.
+local function move(b, dx, dy)
+  b._left, b._bottom = b._left + dx, b._bottom + dy
+end
+
+h.test("repack twice gives the same anchors", function()
+  local ns, _, _, buttons, cleanup = setup(false)
+  ns.Layout.repack("bar1", 0)
+  move(buttons[2], -2, 0)
+  move(buttons[3], -4, 0)
+  for i = 1, 3 do buttons[i].calls = {} end
+  ns.Layout.repack("bar1", 0)
+  h.eq(points(buttons[2]), { { "CENTER", buttons[2]._container, "CENTER", -2, 0 } })
+  h.eq(points(buttons[3]), { { "CENTER", buttons[3]._container, "CENTER", -4, 0 } })
+  cleanup()
+end)
+
+h.test("buttons follow when Blizzard moves the containers", function()
+  -- after our repack Blizzard lays the bar out again by moving the
+  -- containers (the buttons keep our offsets to them): a new repack keeps
+  -- the same offsets, it does not add them up
+  local ns, _, _, buttons, cleanup = setup(false)
+  ns.Layout.repack("bar1", 0)
+  move(buttons[2], -2, 0)
+  move(buttons[3], -4, 0)
+  for i = 1, 3 do move(buttons[i], 0, 300); buttons[i].calls = {} end
+  ns.Layout.repack("bar1", 0)
+  h.eq(points(buttons[3]), { { "CENTER", buttons[3]._container, "CENTER", -4, 0 } })
+  cleanup()
+end)
+
+h.test("a Blizzard re-anchor becomes the new base", function()
+  local ns, _, _, buttons, cleanup = setup(false)
+  ns.Layout.repack("bar1", 0)
+  move(buttons[2], -2, 0)
+  -- Blizzard anchors button 2 anew (its own offset, our offset gone)
+  local other = fakes.frame("Other")
+  buttons[2]._points = { { "TOPLEFT", other, "TOPLEFT", 5, 0 } }
+  move(buttons[2], 2, 0)
+  buttons[2].calls = {}
+  ns.Layout.repack("bar1", 0)
+  h.eq(points(buttons[2]), { { "TOPLEFT", other, "TOPLEFT", 3, 0 } })
+  cleanup()
+end)
+
+h.test("a button with two anchors is left alone", function()
+  local ns, _, _, buttons, cleanup = setup(false)
+  buttons[3]._points[2] = { "BOTTOMRIGHT", buttons[3]._container, "BOTTOMRIGHT", 0, 0 }
+  ns.Layout.repack("bar1", 0)
+  h.eq(points(buttons[3]), {})
   cleanup()
 end)
 
