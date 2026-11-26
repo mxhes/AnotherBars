@@ -78,7 +78,7 @@ the weak table of `Skin/Button.lua`, never on the button):
 | --- | --- | --- |
 | back | button - 1 | the panel fill; Classic: the round tooltip edge (backdrop) |
 | Blizzard's cooldown | button + 1 | moved inside the edge, our swipe alpha and gold countdown font |
-| front | button + 2 | edge lines, shading, active edge and glow, hover / pressed / empty overlays, Gilded studs |
+| front | button + 2 | edge lines, shading, active edge and glow, hover / pressed / empty overlays |
 | text | button + 3 | Blizzard's hotkey, count and macro name, re-parented (off = alpha 0) |
 | glow | button + 4 | the proc glow |
 

@@ -23,7 +23,7 @@ In development. What works so far:
     the font size.
   - **Settings**: opens the AnotherBars settings.
 - **Settings** (`/abars`, or the Settings button in Edit Mode): the skin
-  for all bars (Classic, Forge, Slate, Gilded) and which bars wear the
+  for all bars (Classic, Forge, Slate) and which bars wear the
   look. Turning a bar off brings Blizzard's look back after a `/reload`.
 - `/abars version` prints the version.
 

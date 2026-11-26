@@ -59,9 +59,9 @@ end)
 h.test("ring lines follow the skin", function()
   local ns, _, badge, client = setup()
   h.eq(#badge.shown, #ns.Theme.ringRoundShades)
-  ns.DB.profile().skin = "gilded"
+  ns.DB.profile().skin = "forge"
   ns.Skin.Autocast.relayoutAll()
-  h.eq(#badge.shown, #ns.Theme.edgeRects("gilded"))
+  h.eq(#badge.shown, #ns.Theme.edgeRects("bevel"))
   client.restore()
 end)
 

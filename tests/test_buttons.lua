@@ -150,14 +150,12 @@ h.test("skin change relayouts the same overlay", function()
   ns.Skin.Button.skin(b, OPTS)
   local n = made()
   local st = ns.Skin.Button.state(b)
-  h.eq(shownCount(st.studs), 0)
-  ns.DB.profile().skin = "gilded"
+  ns.DB.profile().skin = "forge"
   ns.Skin.Button.relayoutAll()
   h.eq(made(), n)
   local rects = 0
   for _, r in ipairs(st.rects) do if r[1]._shown then rects = rects + 1 end end
-  h.eq(rects, 6)
-  h.eq(shownCount(st.studs), 4)
+  h.eq(rects, 5)
   cleanup()
 end)
 

@@ -12,7 +12,6 @@ h.test("edge width per border", function()
   h.eq(Look.edgeWidth("round"), 3)
   h.eq(Look.edgeWidth("bevel"), 5)
   h.eq(Look.edgeWidth("thin"), 2)
-  h.eq(Look.edgeWidth("gilded"), 6)
 end)
 
 h.test("edges shade panelBorder, goldLine on hover", function()
@@ -58,8 +57,10 @@ end)
 h.test("skin comes from the profile, Classic when unknown", function()
   local ns = load()
   h.eq(ns.Look.skin().id, "classic")
-  ns.DB.profile().skin = "gilded"
-  h.eq(ns.Look.skin().id, "gilded")
+  ns.DB.profile().skin = "slate"
+  h.eq(ns.Look.skin().id, "slate")
+  ns.DB.profile().skin = "gilded" -- removed skin: a saved one shows as Classic
+  h.eq(ns.Look.skin().id, "classic")
   ns.DB.profile().skin = "nope"
   h.eq(ns.Look.skin().id, "classic")
 end)

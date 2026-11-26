@@ -4,9 +4,11 @@ local function load()
   return h.load({ "Core/Util.lua", "Core/Theme.lua" })
 end
 
-h.test("theme has all four skins", function()
+h.test("theme has the three skins, no Gilded", function()
   local Theme = load().Theme
-  for _, id in ipairs({ "classic", "forge", "slate", "gilded" }) do
+  h.eq(Theme.skins.gilded, nil)
+  h.eq(Theme.skinOrder, { "classic", "forge", "slate" })
+  for _, id in ipairs({ "classic", "forge", "slate" }) do
     h.eq(type(Theme.skins[id]), "table", id)
     h.eq(Theme.skins[id].id, id)
   end
@@ -25,7 +27,7 @@ end)
 
 h.test("textures point into the AnotherBars folder", function()
   local Theme = load().Theme
-  h.eq(Theme.textures.skinStud, "Interface\\AddOns\\AnotherBars\\Media\\Skins\\Stud")
+  h.eq(Theme.textures.skinStud, nil)
   h.eq(Theme.textures.skinDotted, "Interface\\AddOns\\AnotherBars\\Media\\Skins\\Dotted")
 end)
 

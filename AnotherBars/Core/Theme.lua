@@ -21,7 +21,6 @@ Theme.textures = {
   arrow = "Interface\\ChatFrame\\ChatFrameExpandArrow",
   -- Skins (Theme.skins): the addon's own textures; grey-scale, tinted with
   -- the theme colors.
-  skinStud = "Interface\\AddOns\\AnotherBars\\Media\\Skins\\Stud",
   skinDotted = "Interface\\AddOns\\AnotherBars\\Media\\Skins\\Dotted",
   -- A plain white tile for 1 px lines (edges and dividers).
   line = "Interface\\Buttons\\WHITE8X8",
@@ -90,9 +89,7 @@ Theme.sizes = {
   backdropTile = 16,
   backdropEdge = 16,
   backdropInset = 5,
-  -- Skins: the Gilded corner studs, and how far a sunken list box reaches
-  -- past its list.
-  studSize = 10,
+  -- Skins: how far a sunken list box reaches past its list.
   listBoxPad = 3,
   -- How close (px) an edge or the center of a dragged AnotherBars frame has
   -- to be to a screen line or another AnotherBars frame to snap onto it.
@@ -112,7 +109,6 @@ Theme.button = {
   activeEdge = 2,
   activeGlow = 6,
   activeGlowAlpha = 0.6,
-  studSize = 7,
   roundEdgeSize = 8,
   iconCrop = 0.08,
   glow = { out = 5, line = 2, outer = 10, outerAlpha = 0.75, inner = 8, innerAlpha = 0.6,
@@ -163,7 +159,7 @@ end
 
 -- The choices of each part, in option order.
 Theme.skinParts = {
-  border = { "round", "bevel", "thin", "gilded" },
+  border = { "round", "bevel", "thin" },
   buttons = { "bronze", "raised", "flat" },
   lines = { "gold", "groove", "plain", "dotted" },
 }
@@ -177,10 +173,8 @@ Theme.skins = {
     lines = "groove", listBox = true },
   slate = { id = "slate", label = "Slate", border = "thin", buttons = "flat",
     lines = "plain", listBox = false },
-  gilded = { id = "gilded", label = "Gilded", border = "gilded", buttons = "bronze",
-    lines = "dotted", listBox = false },
 }
-Theme.skinOrder = { "classic", "forge", "slate", "gilded" }
+Theme.skinOrder = { "classic", "forge", "slate" }
 
 -- How the styles shade the theme colors: the dark edge lines, the groove's
 -- dark / light line, the raised buttons' light / dark edge, how far Plain
@@ -239,15 +233,7 @@ function Theme.edgeRects(border)
     return { { inset = 0, shade = d }, { inset = 1, shade = l }, { inset = 2, shade = 1 },
       { inset = 3, shade = 1 }, { inset = 4, shade = d } }
   end
-  if border == "gilded" then
-    return { { inset = 0, shade = d }, { inset = 1, shade = l }, { inset = 2, shade = d },
-      { inset = 3, shade = d }, { inset = 4, shade = l }, { inset = 5, shade = d } }
-  end
   return {}
-end
-
-function Theme.edgeStuds(border)
-  return border == "gilded"
 end
 
 -- Pure. `a` moved toward `b` by t (0..1); alpha of `a`.

@@ -17,7 +17,7 @@ h.test("skin choices follow the skin order", function()
   local ns = load()
   h.eq(ns.UI.Settings.skinChoices(), {
     { value = "classic", label = "Classic" }, { value = "forge", label = "Forge" },
-    { value = "slate", label = "Slate" }, { value = "gilded", label = "Gilded" } })
+    { value = "slate", label = "Slate" } })
 end)
 
 h.test("a new profile uses Classic", function()
