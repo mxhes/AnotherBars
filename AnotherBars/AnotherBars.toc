@@ -19,4 +19,5 @@ Core/Combat.lua
 Core/Options.lua
 Core/Bars.lua
 Core/Grid.lua
+Core/Layout.lua
 Boot.lua

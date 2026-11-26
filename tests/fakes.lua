@@ -92,6 +92,10 @@ function methods.UnregisterAllEvents(self) self._events = {} end
 -- _height (UIParent units; SetPoint does not move it). _scale defaults to 1.
 function methods.GetLeft(self) return self._left end
 function methods.GetBottom(self) return self._bottom end
+function methods.GetTop(self)
+  if self._bottom == nil or self._height == nil then return nil end
+  return self._bottom + self._height
+end
 function methods.GetWidth(self) return self._width end
 function methods.GetHeight(self) return self._height end
 function methods.GetScale(self) return self._scale or 1 end
