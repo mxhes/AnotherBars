@@ -4,7 +4,43 @@ What still has to be confirmed in the client, and the release steps.
 
 ## Open checks
 
-None yet.
+### Plan 1 spike
+
+Setup first: `docs/DEVELOPMENT.md` ("Spike check"). Results go under
+"Results" below (date, pass / fail, what was seen). The spike build adds one
+"Spike: padding 0" checkbox to each Blizzard bar's Edit Mode panel and a chat
+line each time Blizzard lays out a bar.
+
+- [ ] Library loaded: `/dump LibStub and LibStub("LibEditMode", true) ~= nil` prints `true`.
+- [ ] `/dump Enum.EditModeActionBarSystemIndices` has the keys `Core/Bars.lua`
+  uses (MainBar, Bar2, Bar3, RightBar1, RightBar2, ExtraBar1-3, StanceBar,
+  PetActionBar); each bar frame exists (`/dump MultiBar5 ~= nil`, `StanceBar`,
+  `PetActionBar`, ...); `/dump MainMenuBar.UpdateGridLayout ~= nil` prints `true`.
+- [ ] `/abars` prints the version (`C_AddOns.GetAddOnMetadata`).
+- [ ] "Spike: padding 0" shows in each of the ten Blizzard bar panels. Turning
+  it on closes the gaps on that bar; button 1 does not move; Rows 2 and 3 and
+  "# of Icons" 6 keep the bar's shape.
+- [ ] After leaving Edit Mode, `/reload`, and changing Icon Size and Padding in
+  Blizzard's panel, our padding comes back after each change, and the gaps are
+  right at Icon Size 50% and 200% (buttons share one scale).
+- [ ] **Re-layout in combat:** with the chat log on, fight a target dummy as a
+  Warrior (stance changes) and a Druid (form changes), as a pet class (summon /
+  dismiss the pet) and in a vehicle if one is at hand. Write down every
+  "laid out (in combat: yes)" line and its bar.
+- [ ] **Taint:** `/console taintLog 1`, `/reload`; padding 0 on all bars;
+  fight a dummy casting from every bar, change stance / form, open the
+  spellbook and talents in combat. No "Interface action failed" / blocked
+  message, and `_forever_\Logs\taint.log` has no `AnotherBars` lines.
+- [ ] **Fading:** `/abars spike alpha` in combat: the chat says "ok", Action
+  Bar 2 goes to half opacity and its buttons still work; again sets it back.
+
+What the results decide (spec, Layout fallback): a bar that re-lays out in
+nearly every fight gets "Own padding" off by default in Plan 4; AnotherBars
+lines in the taint log from re-anchoring drop padding from release 1.
+
+Results:
+
+- (not run yet)
 
 ## Release steps
 

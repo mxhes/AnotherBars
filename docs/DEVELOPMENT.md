@@ -1,6 +1,8 @@
 # AnotherBars development
 
-Status: Plan 1 (foundation and client spike) in progress. The design and its
+Status: Plan 1 built: core (from AnotherHUD), bar list, padding math, re-layout
+hook, settings on Blizzard's bar panels, and the client spike (waiting for
+the player's run). The design and its
 reasons are in `docs/superpowers/specs/2026-11-26-anotherbars-design.md`.
 
 ## Setup
@@ -20,6 +22,23 @@ reasons are in `docs/superpowers/specs/2026-11-26-anotherbars-design.md`.
   modified).
 - Tools: Lua 5.4 (local), luacheck, gh.
 
+**Spike check (Plan 1).** Run once by the player, in PowerShell; nothing here
+is done by the build.
+
+1. Close the game. Link the addon:
+   `New-Item -ItemType Junction -Path "C:\Program Files (x86)\World of Warcraft\_forever_\Interface\AddOns\AnotherBars" -Target "D:\GitRepos\AnotherBars\AnotherBars"`.
+2. Libraries: download the latest `AnotherBars-dry-run` artifact (Actions >
+   CI, a `workflow_dispatch` run) and copy the `AnotherBars\Libs` folder from
+   its zip to `D:\GitRepos\AnotherBars\AnotherBars\Libs\`.
+3. Start the game, enable AnotherBars, log in. Check the library first (first
+   line of the spike checks in `docs/CHECKLIST.md`), then
+   `/console taintLog 1` and `/reload` once so logging starts clean.
+4. Run the "Plan 1 spike" checks in `docs/CHECKLIST.md`. The taint log is
+   `C:\Program Files (x86)\World of Warcraft\_forever_\Logs\taint.log`
+   (written on logout / `/reload`): search it for `AnotherBars`.
+5. Write the results under "Results" in `docs/CHECKLIST.md`.
+6. `/console taintLog 0` when done.
+
 ## Code layout
 
 | Folder / file | What it holds |
@@ -36,5 +55,6 @@ reasons are in `docs/superpowers/specs/2026-11-26-anotherbars-design.md`.
 | `Core/Layout.lua` | client glue: hook after Blizzard lays out a bar, re-anchor its buttons with our padding (out of combat) |
 | `EditMode/Panel.lua` | pure: a module's `settings` -> LibEditMode setting rows (from AnotherHUD) |
 | `EditMode/System.lua` | adds each bar module's settings to Blizzard's own bar panel (`AddSystemSettings`) |
+| `Spike/Spike.lua` | Plan 1 spike: one module per bar with "Spike: padding 0", re-layout log, `/abars spike log / alpha` (deleted in Plan 3) |
 | `Core/Core.lua` | start-up and the `/abars` slash command |
 | `Boot.lua` | starts the addon on `ADDON_LOADED` |
