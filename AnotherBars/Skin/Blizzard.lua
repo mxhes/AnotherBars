@@ -96,8 +96,9 @@ end
 -- fn(button, checked) after SetChecked (the value read back from the button).
 function Blizzard.onChecked(b, fn)
   Blizzard.hookOnce(b, "SetChecked", function(self)
-    local get = self.GetChecked
-    fn(self, type(get) == "function" and get(self) or nil)
+    local get, checked = self.GetChecked, nil
+    if type(get) == "function" then checked = get(self) end
+    fn(self, checked)
   end)
 end
 
