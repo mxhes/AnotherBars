@@ -55,6 +55,9 @@ local function onCooldown(id)
   if type(api) ~= "table" or type(api.GetSpellCooldown) ~= "function" then return nil end
   local info = api.GetSpellCooldown(id)
   if type(info) ~= "table" then return nil end
+  -- The global cooldown alone is not a cooldown: the glow stays through it.
+  -- UNVERIFIED (check in client): the isOnGCD field.
+  if ns.Util.plain(info.isOnGCD) == true then return false end
   local v = ns.Util.plain(info.isActive)
   if type(v) == "boolean" then return v end
   return nil

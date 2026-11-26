@@ -11,9 +11,9 @@ In development. What works so far:
   bar wears the suite's frame: the skin's border around the icon, the
   button shading, and the suite's hover, pressed, active and empty-slot
   looks. Out of range, out of mana and unusable spells are tinted, the
-  cooldown time shows in gold. Reactive spells (Overpower, Revenge,
-  Execute, Riposte, Counterattack, Mongoose Bite, Hammer of Wrath) pulse in
-  gold while you can use them. Pet abilities that can cast on their own show a small round
+  cooldown time shows in gold. Reactive spells (such as Overpower,
+  Revenge, Execute, Riposte or Hammer of Wrath) pulse in gold while you can
+  use them. Pet abilities that can cast on their own show a small round
   badge: a gold dot while autocast is on, empty while it is off.
 - **Edit Mode.** Open Edit Mode and click a bar. Below Blizzard's own
   settings you find:

@@ -4,14 +4,22 @@ local function load()
   return h.load({ "Core/Util.lua", "Core/Reactive.lua" })
 end
 
-h.test("ids per class", function()
+-- These tests never name the shipped list, so adding a spell or a class to
+-- Reactive.SPELLS needs no test change.
+h.test("ids per class, in list order", function()
   local R = load().Reactive
-  h.eq(R.idsFor("WARRIOR"), { 7384, 6572, 5308 })
-  h.eq(R.idsFor("ROGUE"), { 14251 })
-  h.eq(R.idsFor("HUNTER"), { 19306, 1495 })
-  h.eq(R.idsFor("PALADIN"), { 24275 })
+  R.SPELLS = { WARRIOR = { { id = 1, name = "A" }, { id = 2, name = "B" } }, ROGUE = { { id = 3, name = "C" } } }
+  h.eq(R.idsFor("WARRIOR"), { 1, 2 })
+  h.eq(R.idsFor("ROGUE"), { 3 })
   h.eq(R.idsFor("MAGE"), {})
   h.eq(R.idsFor(nil), {})
+end)
+
+h.test("the shipped list gives every class its ids", function()
+  local R = load().Reactive
+  for class, list in pairs(R.SPELLS) do
+    h.eq(#R.idsFor(class), #list, class)
+  end
 end)
 
 h.test("every list entry is a spell id with a name, no duplicates", function()

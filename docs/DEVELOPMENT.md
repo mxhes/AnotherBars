@@ -96,7 +96,8 @@ event; Plan 3 results in `docs/CHECKLIST.md`). `Skin/Procs.lua` lights a
 button when its spell, or the spell its macro casts, has the name of one of
 the player's reactive spells (`Core/Reactive.lua`), `IsUsableAction` says
 usable, and `C_Spell.GetSpellCooldown(id).isActive` is not true (no math on
-cooldown numbers; an unknown cooldown counts as off). It re-checks on
+cooldown numbers; an unknown cooldown counts as off, and `isOnGCD` true
+means only the global cooldown, which does not hide the glow). It re-checks on
 usable, cooldown, slot, page, bonus bar, target, target health and stance
 events. The game's proc events (`SPELL_ACTIVATION_OVERLAY_GLOW_SHOW` /
 `_HIDE`, `IsSpellOverlayed` at login) and the alert hooks stay as a second
@@ -104,9 +105,10 @@ source: a button glows when either says so.
 
 **Adding a reactive spell:** one line `{ id = <spell id>, name = "<name>" }`
 under the class token in `Reactive.SPELLS` (`Core/Reactive.lua`); a new
-class is a new key. Any rank's id works, since buttons match by name. A
-test checks every entry (`tests/test_reactive.lua`); add a CHECKLIST line
-for the client check.
+class is a new key. Any rank's id works, since buttons match by name. The
+tests never name the shipped list, so no test changes; a test checks every
+entry is valid (`tests/test_reactive.lua`). Add a CHECKLIST line for the
+client check.
 
 **Secret values.** Every range, usable, mana, checked or autocast value from
 the client goes through `Util.plain(v)` (nil for a secret) before a branch;

@@ -175,3 +175,13 @@ h.test("a class without reactive spells stays dark", function()
   h.eq(glowing(ns, b), false)
   cleanup()
 end)
+
+h.test("the global cooldown alone does not hide the glow", function()
+  local ns, client, button, cleanup = setup({ [1] = { "spell", 7384 } }, nil,
+    { usable = { [1] = true }, cooldown = { [7384] = { isActive = true, isOnGCD = true } } })
+  local b = button("ActionButton1", 1)
+  ns.Skin.Procs.start()
+  client.fire("SPELL_UPDATE_COOLDOWN")
+  h.eq(glowing(ns, b), true)
+  cleanup()
+end)

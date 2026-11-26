@@ -9,7 +9,10 @@ What still has to be confirmed in the client, and the release steps.
 - [ ] Every listed spell's name resolves: `/dump C_Spell.GetSpellName(7384)`
   (Overpower), 6572 (Revenge), 5308 (Execute), 14251 (Riposte), 19306
   (Counterattack), 1495 (Mongoose Bite), 24275 (Hammer of Wrath).
-- [ ] `/dump C_Spell.GetSpellCooldown(7384)` has an `isActive` field.
+- [ ] `/dump C_Spell.GetSpellCooldown(7384)` has `isActive` and `isOnGCD`
+  fields, and they are readable in combat (not secret).
+- [ ] The glow does not blink off during the global cooldown (spam Execute
+  below 20%), but does go off while Revenge is on its own cooldown.
 - [ ] Warrior: Overpower glows after the target dodges and stops on use / while
   on cooldown; Revenge after a block, dodge or parry; Execute below 20%
   target health. Paladin: Hammer of Wrath below 20%. A macro with the spell
