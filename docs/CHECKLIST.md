@@ -23,7 +23,7 @@ line each time Blizzard lays out a bar.
 - [ ] After leaving Edit Mode, `/reload`, and changing Icon Size and Padding in
   Blizzard's panel, our padding comes back after each change, and the gaps are
   right at Icon Size 50% and 200% (buttons share one scale).
-- [ ] **Main bar after /reload:** padding 0 on for Action Bar 1, `/reload`
+- [x] **Main bar after /reload:** padding 0 on for Action Bar 1, `/reload`
   twice: the bar stays in order (buttons 1-12 left to right, as Blizzard has
   them) and closed up. Blizzard moves the main bar's button containers after
   addon load, so the spike repacks only once the Edit Mode layout is in and
