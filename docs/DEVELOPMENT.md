@@ -31,4 +31,6 @@ reasons are in `docs/superpowers/specs/2026-11-26-anotherbars-design.md`.
 | `Core/DB.lua` | saved state: profiles, totem bar positions per Edit Mode layout |
 | `Core/Modules.lua`, `Core/Options.lua` | module registry (kinds `bar` / `misc`, optional `system`), settings |
 | `Core/Combat.lua` | `Combat.after(key, fn)`: queues work until combat ends |
+| `Core/Bars.lua` | the ten Blizzard bars: frame, button prefix, count, Edit Mode system key |
+| `Core/Grid.lua` | pure padding math: Blizzard's rows / columns from button offsets, new offsets for our padding |
 | `Boot.lua` | starts the addon on `ADDON_LOADED` |

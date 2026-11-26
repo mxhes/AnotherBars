@@ -17,4 +17,6 @@ Core/DB.lua
 Core/Modules.lua
 Core/Combat.lua
 Core/Options.lua
+Core/Bars.lua
+Core/Grid.lua
 Boot.lua
