@@ -20,6 +20,7 @@ Core/Modules.lua
 Core/Combat.lua
 Core/Options.lua
 Core/Bars.lua
+Core/Art.lua
 Core/Grid.lua
 Core/Layout.lua
 Skin/Blizzard.lua

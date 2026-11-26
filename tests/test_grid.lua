@@ -48,3 +48,26 @@ end)
 h.test("a hidden middle row keeps the rows", function()
   h.eq(Grid().cells({ { 0, 0 }, { 0, -80 } }, 36, 36), { { 0, 0 }, { 0, -2 } })
 end)
+
+h.test("spacing: padding, or icons 1 px apart at 0", function()
+  h.eq(Grid().spacing(2, 3), 2)
+  h.eq(Grid().spacing(0, 3), -5)
+  h.eq(Grid().spacing(0, 2), -3)
+end)
+
+h.test("dividers between neighbouring cells", function()
+  local cells = { { 0, 0 }, { 1, 0 }, { 2, 0 }, { 0, -1 }, { 1, -1 }, { 2, -1 } }
+  local d = Grid().dividers(cells)
+  local v, hz, has12 = 0, 0, false
+  for _, p in ipairs(d) do
+    if p[3] == "v" then v = v + 1 else hz = hz + 1 end
+    if p[1] == 1 and p[2] == 2 and p[3] == "v" then has12 = true end
+    if p[3] == "h" then h.eq(cells[p[1]][2] - cells[p[2]][2], 1) end
+  end
+  h.eq({ v, hz, has12 }, { 4, 3, true })
+  h.eq(Grid().dividers({ { 0, 0 } }), {})
+end)
+
+h.test("dividers: left one first, any growth direction", function()
+  h.eq(Grid().dividers({ { 0, 0 }, { -1, 0 } }), { { 2, 1, "v" } })
+end)

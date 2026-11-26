@@ -42,10 +42,14 @@ h.test("Look and Text sections with their defaults", function()
       h.eq(type(c.tooltip), "string", c.key)
     end
   end
-  h.eq(keys, { "shading", "hotkey", "macro", "count", "fontSize" })
+  h.eq(keys, { "shading", "hideArt", "ownPadding", "padding", "hotkey", "macro", "count", "fontSize" })
   h.eq(spec.settings[1].controls[1].values, { "Skin", "Bronze", "Raised", "Flat" })
-  h.eq(spec.defaults, { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10 })
+  h.eq(spec.defaults, { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10,
+    hideArt = true, ownPadding = true, padding = 2 })
+  local pad = spec.settings[1].controls[4]
+  h.eq({ pad.min, pad.max, pad.step }, { 0, 10, 1 })
   local size = spec.settings[2].controls[4]
+  h.eq(size.key, "fontSize")
   h.eq({ size.min, size.max, size.step }, { 6, 16, 1 })
 end)
 
@@ -124,4 +128,33 @@ h.test("final: pet and stance updates refresh their buttons", function()
   end)
   h.eq(refreshed, { p1, s1 })
   client.restore()
+end)
+
+h.test("padding defaults: own padding on except the Stance Bar", function()
+  local ns = load()
+  for _, spec in ipairs(ns.Modules.list()) do
+    h.eq(spec.defaults.hideArt, true, spec.id)
+    h.eq(spec.defaults.padding, 2, spec.id)
+    h.eq(spec.defaults.ownPadding, spec.id ~= "stance", spec.id)
+  end
+end)
+
+h.test("the Stance Bar's own padding tooltip says why it starts off", function()
+  local ns = load()
+  local function tip(id)
+    for _, s in ipairs(ns.Modules.get(id).settings) do
+      for _, c in ipairs(s.controls) do if c.key == "ownPadding" then return c.tooltip end end
+    end
+  end
+  h.eq(tip("stance"), "The Stance Bar re-lays out in combat; its gaps return to Blizzard's until combat ends")
+  h.eq(tip("bar1") ~= tip("stance"), true)
+end)
+
+h.test("every label fits in 24 characters", function()
+  local ns = load()
+  for _, spec in ipairs(ns.Modules.list()) do
+    for _, s in ipairs(spec.settings) do
+      for _, c in ipairs(s.controls) do h.eq(#c.label <= 24, true, c.label) end
+    end
+  end
 end)

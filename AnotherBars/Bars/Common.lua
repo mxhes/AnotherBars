@@ -8,13 +8,23 @@ local Common = {}
 
 local KEYS = { "shading", "hotkey", "macro", "count", "fontSize" }
 
-Common.defaults = { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10 }
+Common.defaults = { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10,
+  hideArt = true, ownPadding = true, padding = 2 }
 
-local function settings()
+-- tooltips: per-bar replacements { [key] = text }.
+local function settings(tooltips)
+  tooltips = tooltips or {}
+  local function tip(key, text) return tooltips[key] or text end
   return {
     { section = "Look", controls = {
       { key = "shading", type = "dropdown", label = "Button shading", values = { "Skin", "Bronze", "Raised", "Flat" },
         tooltip = "Inner shading of the buttons; Skin follows the skin's pick" },
+      { key = "hideArt", type = "checkbox", label = "Hide Blizzard art",
+        tooltip = tip("hideArt", "Hides the bar's end caps, background and dividers") },
+      { key = "ownPadding", type = "checkbox", label = "Own padding",
+        tooltip = tip("ownPadding", "Uses the padding below instead of Blizzard's") },
+      { key = "padding", type = "slider", label = "Padding", min = 0, max = 10, step = 1,
+        tooltip = tip("padding", "Space between buttons; 0 joins the bar into one frame") },
     } },
     { section = "Text", controls = {
       { key = "hotkey", type = "checkbox", label = "Show hotkey", tooltip = "The key bound to each button" },
@@ -50,11 +60,14 @@ local function skinAll(spec)
 end
 
 -- Defines the module of bar `id`. `extra(spec)` runs after the buttons are
--- skinned on create (the pet bar's autocast badge).
-function Common.define(id, extra)
+-- skinned on create (the pet bar's autocast badge). overrides: { defaults =
+-- { [key] = value }, tooltips = { [key] = text } } for this bar.
+function Common.define(id, extra, overrides)
+  overrides = overrides or {}
   local bar = ns.Bars.get(id)
   local defaults = {}
   for k, v in pairs(Common.defaults) do defaults[k] = v end
+  for k, v in pairs(overrides.defaults or {}) do defaults[k] = v end
   return ns.Modules.define{
     id = id,
     label = bar.label,
@@ -62,7 +75,7 @@ function Common.define(id, extra)
     system = { index = bar.system },
     blizzard = { bar.frame },
     defaults = defaults,
-    settings = settings(),
+    settings = settings(overrides.tooltips),
     create = function(spec)
       skinAll(spec)
       spec.frame = rawget(_G, bar.frame) or true

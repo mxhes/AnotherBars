@@ -36,6 +36,13 @@ ns.Locale.register("deDE", {
   ["Item counts and spell charges"] = "Gegenstandsanzahl und Zauberaufladungen",
   ["Font size"] = "Schriftgröße",
   ["Size of the hotkey; the other texts follow"] = "Größe des Tastenkürzels; die anderen Texte folgen",
+  ["Hide Blizzard art"] = "Blizzard-Grafik aus",
+  ["Hides the bar's end caps, background and dividers"] = "Verbirgt Endkappen, Hintergrund und Trennlinien der Leiste",
+  ["Own padding"] = "Eigener Abstand",
+  ["Uses the padding below instead of Blizzard's"] = "Nutzt den Abstand unten statt Blizzards Abstand",
+  ["Padding"] = "Abstand",
+  ["Space between buttons; 0 joins the bar into one frame"] = "Abstand zwischen den Knöpfen; 0 fasst die Leiste in einen Rahmen",
+  ["The Stance Bar re-lays out in combat; its gaps return to Blizzard's until combat ends"] = "Die Haltungsleiste ordnet sich im Kampf neu; bis zum Kampfende gelten dort Blizzards Abstände",
 
   -- Settings window (UI/Settings.lua)
   ["Settings"] = "Einstellungen",

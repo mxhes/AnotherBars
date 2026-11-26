@@ -76,3 +76,10 @@ h.test("plain drops secret values", function()
     h.eq(ns.Util.plain(true), true)
   end)
 end)
+
+h.test("framed only at own padding and padding 0", function()
+  local Look = load().Look
+  h.eq(Look.framed(true, 0), true)
+  h.eq(Look.framed(true, 2), false)
+  h.eq(Look.framed(false, 0), false)
+end)

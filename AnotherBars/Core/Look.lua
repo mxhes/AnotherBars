@@ -18,6 +18,11 @@ function Look.skin()
   return (type(id) == "string" and T.skins[id]) or T.skins.classic
 end
 
+-- Whether a bar uses the padding-0 look (one bar frame, APPROVED.md §6).
+function Look.framed(ownPadding, padding)
+  return ownPadding == true and padding == 0
+end
+
 -- The edge lines of a button: { inset, color } outside in, on panelBorder,
 -- or on goldLine while hovered.
 function Look.edges(border, hover)
