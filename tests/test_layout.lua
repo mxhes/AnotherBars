@@ -67,6 +67,14 @@ h.test("repack skips hidden buttons", function()
   cleanup()
 end)
 
+h.test("repack keeps the slot of a hidden middle button", function()
+  local ns, _, _, buttons, cleanup = setup(false)
+  buttons[2]._shown = false
+  ns.Layout.repack("bar1", 0)
+  h.eq(points(buttons[3]), { { "TOPLEFT", buttons[1], "TOPLEFT", 72, 0 } })
+  cleanup()
+end)
+
 h.test("watch calls back with combat flag", function()
   local ns, client, bar, _, cleanup = setup(false)
   local got = {}

@@ -33,6 +33,14 @@ line each time Blizzard lays out a bar.
   message, and `_forever_\Logs\taint.log` has no `AnotherBars` lines.
 - [ ] **Fading:** `/abars spike alpha` in combat: the chat says "ok", Action
   Bar 2 goes to half opacity and its buttons still work; again sets it back.
+  "ok" alone does not prove it: a blocked action is reported, not raised, so
+  this also needs no "Interface action failed" / blocked message and no
+  `AnotherBars` lines in the taint log for this step.
+- [ ] **Empty slots:** with "Always Show Buttons" off and padding 0 on, a bar
+  with an empty slot in the middle keeps the buttons after it in their
+  columns. Then drag a spell (the empty slots show): note whether the empty
+  slots appear at Blizzard's spacing and overlap ours (the spike re-anchors
+  shown buttons only; Plan 4 decides how hidden ones are placed).
 
 What the results decide (spec, Layout fallback): a bar that re-lays out in
 nearly every fight gets "Own padding" off by default in Plan 4; AnotherBars

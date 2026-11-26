@@ -15,7 +15,7 @@ end)
 
 h.test("partial last row", function()
   local o = { { 0, 0 }, { 38, 0 }, { 76, 0 }, { 0, -38 }, { 38, -38 } }
-  local cells = Grid().cells(o)
+  local cells = Grid().cells(o, 36, 36)
   h.eq(cells[4], { 0, -1 })
   h.eq(cells[5], { 1, -1 })
   h.eq(Grid().repack(o, 36, 36, 2)[5], { 38, -38 })
@@ -30,11 +30,21 @@ h.test("single button", function()
 end)
 
 h.test("rounds small drift", function()
-  local cells = Grid().cells({ { 0, 0 }, { 38.3, 0.2 } })
+  local cells = Grid().cells({ { 0, 0 }, { 38.3, 0.2 } }, 36, 36)
   h.eq(cells[2], { 1, 0 })
 end)
 
 h.test("column and row steps are separate", function()
   -- a vertical bar: columns 0 only, rows step 40
   h.eq(Grid().repack({ { 0, 0 }, { 0, -40 }, { 0, -80 } }, 30, 30, 1), { { 0, 0 }, { 0, -31 }, { 0, -62 } })
+end)
+
+h.test("a hidden middle button keeps the columns", function()
+  -- buttons 1 and 3 shown (button 2 hidden): 76 px is two steps of 38
+  h.eq(Grid().cells({ { 0, 0 }, { 76, 0 }, { 114, 0 } }, 36, 36), { { 0, 0 }, { 2, 0 }, { 3, 0 } })
+  h.eq(Grid().repack({ { 0, 0 }, { 76, 0 } }, 36, 36, 0), { { 0, 0 }, { 72, 0 } })
+end)
+
+h.test("a hidden middle row keeps the rows", function()
+  h.eq(Grid().cells({ { 0, 0 }, { 0, -80 } }, 36, 36), { { 0, 0 }, { 0, -2 } })
 end)
