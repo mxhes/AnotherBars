@@ -26,4 +26,9 @@ reasons are in `docs/superpowers/specs/2026-11-26-anotherbars-design.md`.
 | --- | --- |
 | `AnotherBars.toc` | load order |
 | `embeds.xml` | LibStub, CallbackHandler, LibEditMode |
+| `Core/Util.lua`, `Core/Locale.lua`, `Locales/deDE.lua` | helpers, texts (from AnotherHUD) |
+| `Core/Theme.lua`, `Media/Skins/` | colors, fonts, sizes, skins (from AnotherHUD, unit frame parts left out) |
+| `Core/DB.lua` | saved state: profiles, totem bar positions per Edit Mode layout |
+| `Core/Modules.lua`, `Core/Options.lua` | module registry (kinds `bar` / `misc`, optional `system`), settings |
+| `Core/Combat.lua` | `Combat.after(key, fn)`: queues work until combat ends |
 | `Boot.lua` | starts the addon on `ADDON_LOADED` |
