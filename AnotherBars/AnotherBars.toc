@@ -25,6 +25,7 @@ Skin/Blizzard.lua
 Skin/Draw.lua
 Skin/Glow.lua
 Skin/Button.lua
+Skin/Autocast.lua
 EditMode/Panel.lua
 EditMode/System.lua
 Spike/Spike.lua
