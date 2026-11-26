@@ -36,4 +36,9 @@ ns.Locale.register("deDE", {
   ["Item counts and spell charges"] = "Gegenstandsanzahl und Zauberaufladungen",
   ["Font size"] = "Schriftgröße",
   ["Size of the hotkey; the other texts follow"] = "Größe des Tastenkürzels; die anderen Texte folgen",
+
+  -- Settings window (UI/Settings.lua)
+  ["Settings"] = "Einstellungen",
+  ["Border and decoration style of all bars"] = "Rahmen und Verzierung aller Leisten",
+  ["Turns this bar's look on or off"] = "Schaltet das Aussehen dieser Leiste ein oder aus",
 })

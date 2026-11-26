@@ -32,5 +32,6 @@ Bars/Stance.lua
 Bars/Pet.lua
 EditMode/Panel.lua
 EditMode/System.lua
+UI/Settings.lua
 Core/Core.lua
 Boot.lua

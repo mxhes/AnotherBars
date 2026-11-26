@@ -1,7 +1,8 @@
 local ADDON, ns = ...
 
 -- Our settings on Blizzard's own action bar panels in Edit Mode: one
--- LibEditMode:AddSystemSettings call per enabled bar module (spec.system).
+-- LibEditMode:AddSystemSettings call per enabled bar module (spec.system),
+-- plus a Settings button that opens our Settings window.
 -- Settings are per profile, so the layout name LibEditMode passes is ignored
 -- (EditMode/Panel.lua). Client calls only inside functions.
 ns.EditMode = ns.EditMode or {}
@@ -28,6 +29,11 @@ function System.attachAll()
     local index = spec.system and indices[spec.system.index]
     if index ~= nil and ns.Modules.isEnabled(spec.id) then
       lem:AddSystemSettings(system, ns.EditMode.Panel.build(spec, lem.SettingType), index)
+      if type(lem.AddSystemSettingsButtons) == "function" then
+        lem:AddSystemSettingsButtons(system, { { text = ns.L["Settings"], click = function()
+          if ns.UI and ns.UI.Settings then ns.UI.Settings.open() end
+        end } }, index)
+      end
     end
   end
 end

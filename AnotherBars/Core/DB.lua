@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 
 -- Saved state. Account (AnotherBarsDB):
---   profiles[name] = { modules = { [moduleId] = { ...settings } } }
+--   profiles[name] = { skin = "classic", modules = { [moduleId] = { ...settings } } }
 --   positions[layoutName][moduleId] = { point, x, y }   (Edit Mode layouts)
 --   lastLayout = layoutName   (last Edit Mode layout seen; positions are
 --                              taken from it when LibEditMode is missing)
@@ -24,7 +24,7 @@ DB.charDefaults = {
 }
 
 local function newProfile()
-  return { modules = {} }
+  return { modules = {}, skin = "classic" }
 end
 
 -- Fills the saved tables with defaults (keeping what is there) and makes sure
@@ -44,6 +44,7 @@ function DB.init(saved, charSaved)
   end
   for _, profile in pairs(db.profiles) do
     if type(profile.modules) ~= "table" then profile.modules = {} end
+    if type(profile.skin) ~= "string" then profile.skin = "classic" end
   end
   return db, chardb
 end

@@ -19,8 +19,11 @@ function Core.slash(msg)
   local name, rest = tostring(msg or ""):match("^%s*(%S*)%s*(.-)%s*$")
   local fn = Core.commands[name:lower()]
   if fn then return fn(rest) end
+  if name == "" and ns.UI and ns.UI.Settings then return ns.UI.Settings.open() end
   ns.Util.say("version " .. version())
 end
+
+Core.commands.version = function() ns.Util.say("version " .. version()) end
 
 function Core.init()
   AnotherBarsDB, AnotherBarsCharDB = ns.DB.init(AnotherBarsDB, AnotherBarsCharDB)
@@ -28,6 +31,7 @@ function Core.init()
   SLASH_ANOTHERBARS1, SLASH_ANOTHERBARS2 = "/abars", "/anotherbars"
   SlashCmdList.ANOTHERBARS = Core.slash
   ns.EditMode.System.attachAll()
+  if ns.UI and ns.UI.Settings then ns.UI.Settings.register() end
   for _, spec in ipairs(ns.Modules.list()) do
     if spec.create and ns.Modules.isEnabled(spec.id) then
       ns.Combat.after("create:" .. spec.id, function() spec.create(spec) end)
