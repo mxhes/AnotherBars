@@ -4,6 +4,15 @@ What still has to be confirmed in the client, and the release steps.
 
 ## Open checks
 
+### Active edge after a cast
+
+- [ ] Whirlwind, Execute, Cleave and Bloodrage lose the gold edge after the
+  cast (key and mouse); stances and auto attack keep it while active.
+
+Results:
+
+- (not run yet)
+
 ### Plan 3b proc glow
 
 - [x] Every listed spell's name resolves: `/dump C_Spell.GetSpellName(7384)`

@@ -232,3 +232,56 @@ h.test("final: Blizzard's slot art goes to alpha 0", function()
   h.eq(b.SlotArt._alpha, 0)
   cleanup()
 end)
+
+-- The game can clear the checked flag without calling SetChecked (seen in
+-- the client: GetChecked false, gold edge still on). Every chance re-reads it.
+local function stuckChecked()
+  local ns, client, cleanup = setup()
+  local b = button("ActionButton1")
+  b.SetButtonState = function() end
+  ns.Skin.Button.skin(b, OPTS)
+  local st = ns.Skin.Button.state(b)
+  b:SetChecked(true)
+  h.eq(shownCount(st.active), #st.active)
+  b._checked = false -- cleared inside the game, no SetChecked call
+  return ns, client, cleanup, b, st
+end
+
+h.test("checked cleared by the game: Update re-reads it", function()
+  local _, _, cleanup, b, st = stuckChecked()
+  b:Update()
+  h.eq(shownCount(st.active), 0)
+  cleanup()
+end)
+
+h.test("checked cleared by the game: releasing the key re-reads it", function()
+  local _, _, cleanup, b, st = stuckChecked()
+  b:SetButtonState("NORMAL")
+  h.eq(shownCount(st.active), 0)
+  cleanup()
+end)
+
+h.test("checked cleared by the game: after a click it is re-read", function()
+  local _, _, cleanup, b, st = stuckChecked()
+  b._scripts.PostClick(b, "LeftButton", false)
+  h.eq(shownCount(st.active), 0)
+  cleanup()
+end)
+
+h.test("checked cleared by the game: ACTIONBAR_UPDATE_STATE re-reads every button", function()
+  local _, client, cleanup, _, st = stuckChecked()
+  client.fire("ACTIONBAR_UPDATE_STATE")
+  h.eq(shownCount(st.active), 0)
+  cleanup()
+end)
+
+h.test("a secret checked value keeps the edge", function()
+  local _, client, cleanup, b, st = stuckChecked()
+  b._checked = fakes.secret(1)
+  fakes.withGlobals({ issecretvalue = fakes.isSecret }, function()
+    b:Update()
+    client.fire("ACTIONBAR_UPDATE_STATE")
+  end)
+  h.eq(shownCount(st.active), #st.active)
+  cleanup()
+end)

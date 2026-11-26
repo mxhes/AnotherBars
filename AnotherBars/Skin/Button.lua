@@ -85,9 +85,23 @@ local function tintIcon(b, st)
   st.tinted = tint[1] ~= 1 or tint[2] ~= 1 or tint[3] ~= 1 or tint.desaturate == true
 end
 
+local function onChecked(b, checked)
+  local st = state[b]
+  local v = ns.Util.plain(checked)
+  if not st or v == nil then return end
+  st.checked = v and true or false
+  showState(st)
+end
+
+-- Re-reads the checked flag: the game clears it without SetChecked at times.
+local function syncChecked(b)
+  onChecked(b, ns.Skin.Blizzard.checked(b))
+end
+
 local function onUpdate(b)
   local st = state[b]
   if not st then return end
+  syncChecked(b)
   local icon = st.regions.icon
   local shown = icon and ns.Util.plain(icon:IsShown())
   if shown ~= nil then st.isEmpty = not shown end
@@ -109,19 +123,12 @@ local function onRange(b, inRange, checksRange)
   tintIcon(b, st)
 end
 
-local function onChecked(b, checked)
-  local st = state[b]
-  local v = ns.Util.plain(checked)
-  if not st or v == nil then return end
-  st.checked = v and true or false
-  showState(st)
-end
-
 local function onPressed(b, pressed)
   local st = state[b]
   if not st then return end
   st.pressed = pressed and true or false
   showState(st)
+  if not pressed then syncChecked(b) end
 end
 
 local function onHover(b, over)
@@ -190,6 +197,12 @@ local function wire(b)
     wiredGlobal = true
     B.onRange(onRange)
     B.onAlert(onAlertShow, onAlertHide)
+    -- Casts starting / ending: re-read every button's checked flag.
+    local events = CreateFrame("Frame")
+    events:RegisterEvent("ACTIONBAR_UPDATE_STATE")
+    events:SetScript("OnEvent", function()
+      for sb in pairs(state) do syncChecked(sb) end
+    end)
   end
 end
 
