@@ -6,12 +6,12 @@ What still has to be confirmed in the client, and the release steps.
 
 ### Active edge after a cast
 
-- [ ] Whirlwind, Execute, Cleave and Bloodrage lose the gold edge after the
+- [x] Whirlwind, Execute, Cleave and Bloodrage lose the gold edge after the
   cast (key and mouse); stances and auto attack keep it while active.
 
 Results:
 
-- (not run yet)
+- 2026-11-26: works in the client.
 
 ### Plan 3b proc glow
 
