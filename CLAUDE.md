@@ -2,7 +2,7 @@
 
 WoW **Forever** (retail engine, Interface 16001) addon in Lua 5.1: Blizzard's Action Bars 1-8, Stance Bar and Pet Bar re-skinned in the suite's look (approved button art, gold pulse proc glow), Blizzard's bar artwork hidden, own padding down to 0, settings in each bar's own **Edit Mode** panel; plus an own totem bar. Blizzard keeps all secure logic (clicks, paging, cooldowns, procs, keybinds, placement). Part of the player's own UI suite with **AnotherLedger** (`D:\GitRepos\LootLedger`), **AnotherHUD** (`D:\GitRepos\AnotherHUD`: unit frames, class resource bar, XP / Reputation; it does not touch action bars) and a minimap addon (not built yet). The addon folder is `AnotherBars/` inside the repo.
 
-**Status:** design approved (`docs/superpowers/specs/2026-11-26-anotherbars-design.md`). Next: Plan 1 (foundation + client spike), see `docs/superpowers/plans/`.
+**Status:** design approved (`docs/superpowers/specs/2026-11-26-anotherbars-design.md`); Plan 1 (foundation + client spike) written, waiting for the player's approval (`docs/superpowers/plans/2026-11-26-foundation.md`).
 
 Docs (created in Plan 1, same layout as AnotherHUD):
 - `README.md`: player guide (keep it free of texture paths, API names and pixel sizes).
