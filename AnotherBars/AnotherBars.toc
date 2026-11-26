@@ -14,6 +14,7 @@ Core/Locale.lua
 Locales/deDE.lua
 Core/Theme.lua
 Core/Look.lua
+Core/Reactive.lua
 Core/DB.lua
 Core/Modules.lua
 Core/Combat.lua
