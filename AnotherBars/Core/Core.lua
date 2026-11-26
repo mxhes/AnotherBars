@@ -1,8 +1,8 @@
 local ADDON, ns = ...
 
 -- Start-up, called by Boot.lua on ADDON_LOADED: saved state first, then our
--- settings on Blizzard's bar panels, then the spike (Plan 1 only). Also the
--- /abars slash command.
+-- settings on Blizzard's bar panels, then every enabled bar module's create
+-- (out of combat). Also the /abars slash command.
 local Core = {}
 
 -- Subcommands of /abars: Core.commands[name] = function(rest).
@@ -28,7 +28,11 @@ function Core.init()
   SLASH_ANOTHERBARS1, SLASH_ANOTHERBARS2 = "/abars", "/anotherbars"
   SlashCmdList.ANOTHERBARS = Core.slash
   ns.EditMode.System.attachAll()
-  if ns.Spike then ns.Spike.start() end
+  for _, spec in ipairs(ns.Modules.list()) do
+    if spec.create and ns.Modules.isEnabled(spec.id) then
+      ns.Combat.after("create:" .. spec.id, function() spec.create(spec) end)
+    end
+  end
 end
 
 ns.Core = Core
