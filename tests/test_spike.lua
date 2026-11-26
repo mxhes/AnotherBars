@@ -32,9 +32,26 @@ local function started()
   ns.Util.say = function(msg) rec.said[#rec.said + 1] = msg end
   local client = fakes.client()
   ns.Spike.start()
+  rec.client = client
   client.restore()
   return ns, rec
 end
+
+h.test("no repack at addon load, only after Blizzard's layout lands", function()
+  local ns = load()
+  ns.DB.profile().modules.bar1 = { padding0 = true }
+  local repacked = {}
+  ns.Layout.watch = function() end
+  ns.Layout.repack = function(id, padding) repacked[#repacked + 1] = { id, padding } end
+  local client = fakes.client()
+  ns.Spike.start()
+  h.eq(repacked, {})
+  client.fire("EDIT_MODE_LAYOUTS_UPDATED")
+  h.eq(repacked, { { "bar1", 0 } })
+  client.fire("PLAYER_ENTERING_WORLD")
+  h.eq(repacked, { { "bar1", 0 }, { "bar1", 0 } })
+  client.restore()
+end)
 
 h.test("layout callback repacks only bars with padding0 on", function()
   local ns, rec = started()

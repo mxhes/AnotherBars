@@ -115,22 +115,29 @@ function Spike.command(rest)
   end
 end
 
-function Spike.start()
-  if ns.db then ns.db.spikeTrace = {} end
-  Spike.trace("ADDON_LOADED (before start repack)")
+-- Repacks every bar with padding0 on. Not at addon load: Blizzard applies
+-- the Edit Mode layout later (on the main bar it moves the button
+-- containers), so the repack waits for that.
+local function repackAll(reason)
   for _, bar in ipairs(ns.Bars.list) do
-    ns.Layout.watch(bar.id, onLayout)
     if padding0(bar.id) then ns.Layout.repack(bar.id, 0) end
   end
-  Spike.trace("ADDON_LOADED (after start repack)")
+  Spike.trace(reason)
+end
+
+function Spike.start()
+  if ns.db then ns.db.spikeTrace = {} end
+  Spike.trace("ADDON_LOADED")
+  for _, bar in ipairs(ns.Bars.list) do
+    ns.Layout.watch(bar.id, onLayout)
+  end
   if ns.Core then ns.Core.commands.spike = Spike.command end
-  -- Later load steps, to see when Blizzard's Edit Mode layout lands.
   if type(CreateFrame) == "function" then
     local f = CreateFrame("Frame")
-    for _, ev in ipairs({ "PLAYER_LOGIN", "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED" }) do
+    for _, ev in ipairs({ "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED" }) do
       pcall(f.RegisterEvent, f, ev)
     end
-    f:SetScript("OnEvent", function(_, event) Spike.trace(event) end)
+    f:SetScript("OnEvent", function(_, event) repackAll(event .. " (after repack)") end)
   end
 end
 
