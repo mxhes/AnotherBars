@@ -24,6 +24,7 @@ function Core.slash(msg)
 end
 
 Core.commands.version = function() ns.Util.say("version " .. version()) end
+Core.commands.glow = function() if ns.Skin and ns.Skin.Button then ns.Skin.Button.glowCheck() end end
 
 function Core.init()
   AnotherBarsDB, AnotherBarsCharDB = ns.DB.init(AnotherBarsDB, AnotherBarsCharDB)
