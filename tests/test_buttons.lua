@@ -234,19 +234,3 @@ h.test("final: Blizzard's slot art goes to alpha 0", function()
   h.eq(b.SlotArt._alpha, 0)
   cleanup()
 end)
-
-h.test("glow check reports the hook path and toggles the glow", function()
-  local ns, _, cleanup = setup()
-  local said = {}
-  ns.Util.say = function(m) said[#said + 1] = m end
-  local b = button("ActionButton1")
-  _G.ActionButton1 = b
-  ns.Skin.Button.skin(b, OPTS)
-  ns.Skin.Button.glowCheck()
-  h.eq(said[1], "alert hook: none, alerts seen: 0 (skinned buttons: 0)")
-  h.eq(ns.Skin.Button.state(b).glow.frame._shown, true)
-  ns.Skin.Button.glowCheck()
-  h.eq(ns.Skin.Button.state(b).glow.frame._shown, false)
-  _G.ActionButton1 = nil
-  cleanup()
-end)

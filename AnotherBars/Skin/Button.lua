@@ -134,9 +134,6 @@ local function onHover(b, over)
   showState(st)
 end
 
--- Proc glow diagnostics (/abars glow): how many alert shows reached us.
-Button.alerts = { shown = 0, skinned = 0 }
-
 -- The proc glow on / off (from Blizzard's alert hooks or Skin/Procs.lua).
 function Button.setProc(b, on)
   local st = state[b]
@@ -152,8 +149,6 @@ function Button.each(fn)
 end
 
 local function onAlertShow(b)
-  Button.alerts.shown = Button.alerts.shown + 1
-  if state[b] then Button.alerts.skinned = Button.alerts.skinned + 1 end
   Button.setProc(b, true)
 end
 
@@ -362,19 +357,6 @@ function Button.relayoutAll()
     local st = state[b]
     if st then Button.skin(b, st.opts) end
   end
-end
-
--- /abars glow: which alert hook is in use, how many alert shows reached
--- us, and our glow toggled on Action Button 1 (to see it draw).
-function Button.glowCheck()
-  local a = Button.alerts
-  ns.Util.say(string.format("alert hook: %s, alerts seen: %d (skinned buttons: %d)",
-    tostring(ns.Skin.Blizzard.alertPath), a.shown, a.skinned))
-  local st = state[rawget(_G, "ActionButton1")]
-  if not st then return ns.Util.say("Action Button 1 is not skinned") end
-  st.glowTest = not st.glowTest
-  if st.glowTest then st.glow:show() else st.glow:hide() end
-  ns.Util.say("glow on Action Button 1: " .. (st.glowTest and "on" or "off"))
 end
 
 ns.Skin.Button = Button
