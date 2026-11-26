@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>AnotherBars mockup 7: Pet bar autocast</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+@keyframes pulse { 0%, 100% { opacity: .55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes march { to { background-position: 16px 0, -16px 0, 0 16px, 0 -16px; } }
+@keyframes breathe { 0%, 100% { opacity: .7; } 50% { opacity: 1; } }
+.pulse { animation: pulse 1.1s ease-in-out infinite; }
+.march { animation: march 1.2s linear infinite; }
+.breathe { animation: breathe 1.4s ease-in-out infinite; }
+</style></head>
+<body>
+<h1>Mockup 7: Pet bar autocast marker</h1>
+<p class="lead">Pet abilities that can cast on their own need two looks: <b>autocast on</b> and <b>can autocast, but off</b> (right-click toggles it). The pet bar uses the approved button look (mockup 4, 32 px here, Blizzard's pet bar size) and the approved active state for the toggled stance / command (Attack, Defensive). The marker must not clash with the hotkey (top right), the proc glow (outside the button) or the gold active edge (inside). Buttons: Attack (active), Follow, Move To, Bite (autocast on), Growl (autocast on), Dash (can autocast, off), Cower (can autocast, off), Assist, Defensive (active), Passive.</p>
+<div id="skins"></div>
+<div id="cells"></div>
+
+<div class="pick" id="pick">
+  <b>Approved (2026-11-26):</b> 3, badge. (Claude had suggested 1, corner notch.)
+</div>
+
+<script src="kit.js"></script>
+<script src="buttons.js"></script>
+<script>
+const S = 32, GAP = 2;
+// auto: 'on' | 'off' | undefined (cannot autocast)
+const PET = [
+  { i: 2, key: '1', state: 'active', name: 'Attack' },
+  { i: 4, key: '2', name: 'Follow' },
+  { i: 1, key: '3', name: 'Move To' },
+  { i: 0, key: '4', auto: 'on', name: 'Bite' },
+  { i: 6, key: '5', auto: 'on', name: 'Growl' },
+  { i: 3, key: '6', auto: 'off', name: 'Dash' },
+  { i: 7, key: '7', auto: 'off', name: 'Cower' },
+  { i: 5, key: '8', name: 'Assist' },
+  { i: 4, key: '9', state: 'active', name: 'Defensive' },
+  { i: 1, key: '0', name: 'Passive' },
+];
+const edgeW = skin => edgeList(skin, 'skin').length;
+
+// The marker drawn over a button whose inside starts at e (the edge width).
+function marker(kind, skin, e, auto) {
+  if (!auto) return '';
+  const q = S - 2 * e, g = C.goldLine;
+  if (kind === 'notch') {
+    // a right-angled triangle in the top-left inside corner
+    const n = 9;
+    if (auto === 'on') {
+      return `<i class="abs" style="left:${e}px;top:${e}px;width:${n}px;height:${n}px;background:linear-gradient(135deg, ${css(C.gold)} 0 50%, transparent 50%);filter:drop-shadow(1px 1px 0 rgba(0,0,0,.8))"></i>`;
+    }
+    return `<i class="abs" style="left:${e}px;top:${e}px;width:${n}px;height:${n}px;background:linear-gradient(135deg, ${css(sc(C.border, 1.3), .9)} 0 1.5px, transparent 1.5px 100%), linear-gradient(to right, ${css(sc(C.border, 1.3), .9)} 0 1px, transparent 1px), linear-gradient(to bottom, ${css(sc(C.border, 1.3), .9)} 0 1px, transparent 1px);clip-path:polygon(0 0, 100% 0, 0 100%);opacity:.95"></i>` +
+      `<i class="abs" style="left:${e}px;top:${e}px;width:${n}px;height:${n}px;background:linear-gradient(135deg, transparent 0 calc(50% - 1px), ${css(sc(C.border, 1.3), .9)} calc(50% - 1px) 50%, transparent 50%)"></i>`;
+  }
+  if (kind === 'march') {
+    // a dotted gold line just inside the edge; it runs when on, stands dim when off
+    const dots = c => [
+      `repeating-linear-gradient(to right, ${c} 0 4px, transparent 4px 8px)`,
+      `repeating-linear-gradient(to right, ${c} 0 4px, transparent 4px 8px)`,
+      `repeating-linear-gradient(to bottom, ${c} 0 4px, transparent 4px 8px)`,
+      `repeating-linear-gradient(to bottom, ${c} 0 4px, transparent 4px 8px)`].join(', ');
+    const col = auto === 'on' ? css(g) : css(sc(C.border, 1.2), .7);
+    return `<i class="abs ${auto === 'on' ? 'march' : ''}" style="left:${e + 1}px;top:${e + 1}px;width:${q - 2}px;height:${q - 2}px;background:${dots(col)};background-size:100% 1px, 100% 1px, 1px 100%, 1px 100%;background-position:0 0, 0 100%, 0 0, 100% 0;background-repeat:no-repeat;${auto === 'on' ? 'filter:drop-shadow(0 0 2px ' + css(g, .8) + ')' : ''}"></i>`;
+  }
+  // badge: a small round badge in the skin's ring lines, gold dot when on
+  const d = 11, cx = e + d / 2 - 1, cy = e + d / 2 - 1;
+  const r = K.ring(skin, cx, cy, d, { studs: false });
+  const fill = `<i class="portrait" style="left:${cx - (d - 2 * r.width) / 2}px;top:${cy - (d - 2 * r.width) / 2}px;width:${d - 2 * r.width}px;height:${d - 2 * r.width}px;background:${css(C.panel)}"></i>`;
+  const dot = auto === 'on' ? `<i class="portrait breathe" style="left:${cx - 2}px;top:${cy - 2}px;width:4px;height:4px;background:${css(C.gold)};box-shadow:0 0 3px ${css(g)}"></i>` : '';
+  return fill + r.html + dot;
+}
+
+function petBar(skin, kind, x0 = 12, y0 = 12) {
+  const e = edgeW(skin);
+  return PET.map((o, n) => {
+    const x = x0 + n * (S + GAP);
+    const b = button(skin, x, y0, S, Object.assign({ studs: false }, o));
+    // the marker sits in the button's own box, above the icon
+    const m = `<div class="unit" style="left:${x}px;top:${y0}px;width:${S}px;height:${S}px">${marker(kind, skin, e, o.auto)}</div>`;
+    const t = `<span class="txt" style="left:${x + S / 2}px;top:${y0 + S + 4}px;transform:translateX(-50%);font-size:8px;color:#bbb;text-shadow:none;font-family:Segoe UI">${o.name}</span>`;
+    return b + m + t;
+  }).join('');
+}
+
+// One autocast-on button with a proc glow, to check the marker next to it.
+function withGlow(skin, kind) {
+  const e = edgeW(skin);
+  const o = { i: 0, key: '4', auto: 'on', glow: 'pulse', studs: false };
+  return button(skin, 20, 14, S, o) + `<div class="unit" style="left:20px;top:14px;width:${S}px;height:${S}px">${marker(kind, skin, e, 'on')}</div>`;
+}
+
+const W = 12 + 10 * (S + GAP) + 10;
+K.page({ zoom: 2, variants: [
+  { title: '1. Corner notch (Claude\'s pick)', note: 'A small gold triangle in the top-left inside corner when autocast is on; the same triangle as a thin bronze outline when the ability can autocast but is off. Still; it reads like a dog-ear on the icon.',
+    w: W, h: 64, render: s => petBar(s, 'notch') },
+  { title: '2. Running edge', note: 'A dotted gold line just inside the button edge that runs around while autocast is on; when off it stands still in dim bronze. Closest to the classic "busy" feel, but it moves on several buttons at once next to the proc glow.',
+    w: W, h: 64, render: s => petBar(s, 'march') },
+  { title: '3. Badge', note: 'A tiny round badge in the skin\'s ring lines in the top-left corner (like the level badge on the unit frames): a softly breathing gold dot inside when on, empty when off. Most "suite" looking; covers a little more of the icon.',
+    w: W, h: 64, render: s => petBar(s, 'badge') },
+  { title: 'Next to the proc glow', note: 'An autocast-on ability that also has a proc: marker 1, 2 and 3 with the approved gold pulse.',
+    w: 210, h: 60, render: s => withGlow(s, 'notch') + `<div class="abs" style="left:70px;top:0">${withGlow(s, 'march')}</div>` + `<div class="abs" style="left:120px;top:0">${withGlow(s, 'badge')}</div>` },
+]});
+</script>
+</body></html>

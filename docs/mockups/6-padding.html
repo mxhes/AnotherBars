@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>AnotherBars mockup 6: Padding 0</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+@keyframes pulse { 0%, 100% { opacity: .55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+.pulse { animation: pulse 1.1s ease-in-out infinite; }
+</style></head>
+<body>
+<h1>Mockup 6: Buttons at padding 0</h1>
+<p class="lead">How the approved button look (mockup 4, skin border) behaves when AnotherBars' own padding goes below Blizzard's smallest (2 px), down to 0 where the buttons touch. Shown at 40 px with the approved states mixed in: hover (2nd), proc glow (3rd), cooldown (4th), active (5th), empty slot (6th). The question is what happens where two skin borders meet. Placement at the bottom: where the closed-up buttons sit inside Blizzard's bar frame.</p>
+<div id="skins"></div>
+<div id="cells"></div>
+
+<div class="pick" id="pick">
+  <b>Approved (2026-11-26):</b> C, one bar frame; placement: first button fixed. (Claude had suggested B, shared border.)
+</div>
+
+<script src="kit.js"></script>
+<script src="buttons.js"></script>
+<script>
+const S = 40;
+const ROW = [
+  { i: 0, key: '1' },
+  { i: 1, key: '2', state: 'hover' },
+  { i: 5, key: '3', glow: 'pulse' },
+  { i: 3, key: '4', state: 'cd', cd: '8', cdv: 0.4 },
+  { i: 6, key: '5', state: 'active', count: 2 },
+  { i: 0, key: '', state: 'empty' },
+];
+const edgeW = skin => edgeList(skin, 'skin').length;
+const radius = skin => K.SKINS[skin].border === 'round' ? 4 : 0;
+// Drawn last so their edge / glow sits on top of the neighbours.
+const onTop = o => o.state === 'hover' || !!o.glow;
+
+function studCorners(skin, x, y, w, h) {
+  if (K.SKINS[skin].border !== 'gilded') return '';
+  return K.stud(x + 1, y + 1, 7) + K.stud(x + w - 1, y + 1, 7) + K.stud(x + 1, y + h - 1, 7) + K.stud(x + w - 1, y + h - 1, 7);
+}
+
+// A row (or grid) of approved buttons `step` px apart. cols: buttons per row.
+// shared: per-corner radius so only the outer corners of the block are round.
+function grid(skin, x0, y0, list, step, cols, shared, perButtonStuds) {
+  const rows = Math.ceil(list.length / cols);
+  const r = radius(skin);
+  const cells = list.map((o, n) => {
+    const c = n % cols, rw = Math.floor(n / cols);
+    let rad = null;
+    if (shared && r) {
+      const tl = c === 0 && rw === 0, tr = c === cols - 1 && rw === 0;
+      const bl = c === 0 && rw === rows - 1, br = c === cols - 1 && rw === rows - 1;
+      rad = `${tl ? r : 0}px ${tr ? r : 0}px ${br ? r : 0}px ${bl ? r : 0}px`;
+    }
+    return { o: Object.assign({ studs: perButtonStuds, rad }, o), x: x0 + c * step, y: y0 + rw * step };
+  });
+  const order = cells.filter(c => !onTop(c.o)).concat(cells.filter(c => onTop(c.o)));
+  let html = order.map(c => button(skin, c.x, c.y, S, c.o)).join('');
+  if (!perButtonStuds) {
+    const w = (cols - 1) * step + S, h = (rows - 1) * step + S;
+    html += studCorners(skin, x0, y0, w, h);
+  }
+  return html;
+}
+
+// Variant C: one skin panel around the bar, icons inside split by the skin's Lines pick.
+function strip(skin, x0, y0, list) {
+  const e = edgeW(skin), q = S - 2 * e;
+  const w = 2 * e + list.length * q + (list.length - 1), h = q + 2 * e;
+  let html = K.panel(skin, { x: x0, y: y0, w, h, alpha: 1 });
+  const sk = K.SKINS[skin];
+  list.forEach((o, n) => {
+    const x = x0 + e + n * (q + 1), y = y0 + e;
+    if (n > 0) html += K.rule(skin, x - 1, y, q, true);
+    let inner = '';
+    if (o.state === 'empty') {
+      inner += `<i class="abs" style="left:0;top:0;width:${q}px;height:${q}px;background:${css(C.panel, .75)};box-shadow:inset 0 0 6px rgba(0,0,0,.8)"></i>`;
+    } else {
+      inner += `<i class="icon" style="left:0;top:0;width:${q}px;height:${q}px;background:${iconBg(o.i)}"></i>`;
+    }
+    if (o.state === 'cd') {
+      const deg = Math.round(o.cdv * 360);
+      inner += `<i class="abs" style="left:0;top:0;width:${q}px;height:${q}px;background:conic-gradient(rgba(0,0,0,.72) 0 ${deg}deg, transparent ${deg}deg)"></i>`;
+      inner += `<span class="txt" style="left:${q / 2}px;top:${q / 2 - 9}px;transform:translateX(-50%);font-size:15px;color:${css(C.gold)}">${o.cd}</span>`;
+    }
+    if (sk.buttons === 'raised') inner += `<i class="abs" style="left:0;top:0;right:0;bottom:0;box-shadow:inset 1px 1px 0 ${css(sc(C.border, 1.9), .8)}, inset -1px -1px 0 ${css(sc(C.border, 0.25), .9)}"></i>`;
+    else if (sk.buttons === 'bronze') inner += `<i class="abs" style="left:0;top:0;right:0;bottom:0;box-shadow:inset 0 0 0 1px ${css(sc(C.border, 0.3), .85)}, inset 0 8px 8px -6px rgba(255,220,160,.18)"></i>`;
+    if (o.state === 'active') inner += `<i class="abs" style="left:0;top:0;right:0;bottom:0;box-shadow:inset 0 0 0 2px ${css(C.gold)}, inset 0 0 6px 1px ${css(C.gold, .6)}"></i>`;
+    if (o.state === 'hover') inner += `<i class="abs" style="left:0;top:0;right:0;bottom:0;box-shadow:inset 0 0 0 1px ${css(C.goldLine)};background:rgba(255,230,150,.16)"></i>`;
+    if (o.key) inner += `<span class="txt" style="right:1px;top:0;font-size:10px">${o.key}</span>`;
+    if (o.count) inner += `<span class="txt" style="right:1px;bottom:-1px;font-size:12px">${o.count}</span>`;
+    const glow = o.glow ? procGlow(o.glow, q, 0) : '';
+    html += `<div class="unit" style="left:${x}px;top:${y}px;width:${q}px;height:${q}px">${glow}<div class="abs" style="left:0;top:0;width:${q}px;height:${q}px;overflow:hidden">${inner}</div></div>`;
+  });
+  return html;
+}
+
+function label(x, y, str) {
+  return `<span class="txt" style="left:${x}px;top:${y}px;font-size:9px;color:#bbb;text-shadow:none;font-family:Segoe UI">${str}</span>`;
+}
+
+// Edit Mode selection box of Blizzard's bar (its size at Blizzard's padding 2).
+function barBox(x, y, w, h) {
+  return `<i class="abs" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;border:1px dashed rgba(130,190,255,.8);background:rgba(90,150,230,.08)"></i>`;
+}
+
+const GRID6 = ROW.slice(0, 6);
+K.page({ zoom: 1.5, variants: [
+  { title: 'Today: Blizzard\'s smallest padding (2 px)', note: 'For comparison: the approved buttons 2 px apart, as Blizzard\'s Padding slider allows.',
+    w: 290, h: 70, render: s => grid(s, 14, 14, ROW, S + 2, 6, false, true) },
+  { title: 'A. Borders touch', note: 'Each button keeps its whole skin border; at 0 the borders sit side by side, so the line between two icons is twice the border (Forge 10 px, Gilded 12 px). Gilded studs only on the bar\'s outer corners (they would pile up between buttons). Simplest: padding is just the gap.',
+    w: 290, h: 70, render: s => grid(s, 14, 14, ROW, S, 6, false, false) },
+  { title: 'B. Shared border (Claude\'s pick)', note: 'Neighbours overlap by one border width, so a single skin border runs between icons, like a grid; round corners and Gilded studs only on the block\'s outer corners. The icon stays the approved size. Padding 0 means "shared border"; 1 px and up are real gaps with whole borders again.',
+    w: 290, h: 70, render: s => grid(s, 14, 14, ROW, S - edgeW(s), 6, true, false) },
+  { title: 'B. Shared border, 2 rows of 3', note: 'The same rule in a bar with more rows.',
+    w: 170, h: 120, render: s => grid(s, 14, 14, GRID6, S - edgeW(s), 3, true, false) },
+  { title: 'C. One bar frame', note: 'At padding 0 the buttons lose their own borders: one skin panel around the whole bar, the icons split by the skin\'s Lines pick (1 px). Most compact and calm, but at padding 0 the bar looks different from every other padding, and hover / active only show inside the icon.',
+    w: 290, h: 70, render: s => strip(s, 14, 14, ROW) },
+  { title: 'Placement: first button fixed (Claude\'s pick)', note: 'Blizzard\'s bar frame keeps the size it has at its own padding (dashed: the Edit Mode selection box). With our padding the buttons close up toward button 1, which stays where Blizzard put it: bars you placed keep their first button in place; the leftover space is at the far end.',
+    w: 300, h: 76, render: s => barBox(14, 14, 6 * S + 5 * 2, S) + grid(s, 14, 14, ROW, S - edgeW(s), 6, true, false) + label(14, 60, 'button 1 stays put, free space on the right') },
+  { title: 'Placement: centred', note: 'The buttons close up toward the middle of Blizzard\'s bar frame. Looks balanced on a centred bar, but every button (button 1 too) moves when padding changes, and bars snapped edge to edge get a gap on both ends.',
+    w: 300, h: 76, render: s => {
+      const bw = 6 * S + 5 * 2, pw = 5 * (S - edgeW(s)) + S;
+      return barBox(14, 14, bw, S) + grid(s, 14 + (bw - pw) / 2, 14, ROW, S - edgeW(s), 6, true, false) + label(14, 60, 'free space split on both ends');
+    } },
+]});
+</script>
+</body></html>
