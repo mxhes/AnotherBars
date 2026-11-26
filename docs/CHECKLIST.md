@@ -10,38 +10,44 @@ Copy the addon into the game folder, `/reload`, and compare with the mockup
 pages in `docs/mockups/` (served from that folder). Results under
 "Results" at the end of this section.
 
-- [ ] The names in `Skin/Blizzard.lua` exist: `/dump ActionButton1.HotKey ~= nil`,
+- [x] The names in `Skin/Blizzard.lua` exist: `/dump ActionButton1.HotKey ~= nil`,
   `/dump ActionButtonSpellAlertManager ~= nil` (or `ActionButton_ShowOverlayGlow`),
   `/dump ActionButton_UpdateRangeIndicator ~= nil`,
   `/dump PetActionButton1.AutoCastOverlay ~= nil` (or `AutoCastable`),
   `/dump issecretvalue ~= nil`, `/dump Settings.RegisterProxySetting ~= nil`.
-- [ ] All four skins (Settings window) on Action Bar 1 look like `4-buttons.html`:
+- [x] All four skins (Settings window) on Action Bar 1 look like `4-buttons.html`:
   edge, shading, icon crop; Classic's round edge at button size; Gilded studs.
-- [ ] The back fill draws under the icon (our frame one level below the button),
+- [x] The back fill draws under the icon (our frame one level below the button),
   and Blizzard's slot art (`SlotBackground`, `SlotArt`) is gone.
-- [ ] Summoning a pet and changing stance update the pet / stance buttons
+- [x] Summoning a pet and changing stance update the pet / stance buttons
   (`PetActionBar:Update`, `StanceBar:UpdateState`): no empty look over a filled slot.
-- [ ] States as on the mockup: hover, pressed (mouse and keybind), active
+- [x] States as on the mockup: hover, pressed (mouse and keybind), active
   (auto attack, a stance), out of range (icon red, hotkey red), no mana,
   unusable, cooldown swipe and gold time, empty slot while dragging a spell.
-- [ ] The proc glow pulses like the mockup and Blizzard's spell alert is gone
-  (from the proc events since the alert hook saw no procs); also on a macro
-  that casts the procced spell, and after a `/reload` while a proc is up.
-- [ ] Texts: hotkey, macro name and count on / off and the font size work per
+- [ ] The proc glow: moved to the next plan (see Results).
+- [x] Texts: hotkey, macro name and count on / off and the font size work per
   bar and stay after `/reload`.
-- [ ] Pet bar: the badge as on `7-pet.html` (on, off, none); right-click on
+- [x] Pet bar: the badge as on `7-pet.html` (on, off, none); right-click on
   an ability switches it.
-- [ ] Stance Bar: the active stance has the gold edge; switching stance in
+- [x] Stance Bar: the active stance has the gold edge; switching stance in
   combat moves it.
-- [ ] No Lua errors in combat (secret values) and no `AnotherBars` lines in the
+- [x] No Lua errors in combat (secret values) and no `AnotherBars` lines in the
   taint log after a fight using every bar (`/console taintLog 1`).
-- [ ] Settings window: `/abars` and the Edit Mode Settings button open it; a
+- [x] Settings window: `/abars` and the Edit Mode Settings button open it; a
   skin change applies at once; turning a bar off asks for `/reload` and
   Blizzard's look is back after it; turning it on skins it at once.
 
 Results:
 
-- (not run yet)
+- 2026-11-26: everything passes except the proc glow. Our glow draws (shown
+  by hand with `/abars glow`), but no proc ever reaches it: on Forever the
+  game shows no proc alert at all (Blizzard's glow didn't show either), and
+  neither the alert functions nor the proc events fire. Procs here are spells
+  that turn usable for a while (Overpower, Revenge, Execute, ...) or buffs
+  that make a spell free or instant; the game does not signal them.
+- Decision (player, 2026-11-26): our own short list of reactive spells per
+  class, glowing while usable and off cooldown, as the next plan; buff procs
+  later (BACKLOG). The alert hooks and proc events stay as extra sources.
 
 
 ### Plan 1 spike
