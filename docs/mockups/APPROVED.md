@@ -52,3 +52,43 @@ Shared rules (all mockups):
   action button look (skin border); time left in `gold` 11 pt at the bottom of
   the icon; a 3 px `goldLine` bar under each slot that drains with the time
   left; an empty slot is a faint panel (50%) with a dim 1 px edge.
+
+## 6. Padding 0 (`6-padding.html`)
+
+- Variant: **C, one bar frame** (the player's choice; Claude had suggested B,
+  shared border). At padding 0 the buttons lose their own skin border: one
+  skin panel (the frames' `panelTint` fill at full opacity, the skin's border
+  lines, Classic 5 px round corners, Gilded studs on the panel's four
+  corners) wraps the whole bar, rows included.
+- Inside, the icons keep the approved icon size (button size minus twice the
+  skin's border width) and sit 1 px apart; the 1 px between them is a divider
+  in the skin's Lines pick (gold / groove / plain / dotted), vertical between
+  columns, horizontal between rows.
+- Each icon keeps the Buttons pick shading (Bronze / Raised / Flat) and the
+  approved states, drawn inside the icon: hover = 1 px `goldLine` inner edge
+  plus the 16% warm overlay; active = 2 px `gold` inner edge with the soft
+  inner glow; empty slot = panel at 75% with the dark inner shadow;
+  cooldown, tints and texts as in §4. The proc glow (§4) sits around the
+  icon, 5 px out, over the panel and its neighbours.
+- Padding 1 px and up: back to the approved per-button look (§4) with real
+  gaps; only 0 switches to the bar frame.
+- Placement: **first button fixed**. Blizzard's bar frame keeps its size;
+  the buttons close up toward button 1, which stays where Blizzard put it;
+  the free space is at the far end.
+- Open for Plan 4 (not art): the icons sit closer than Blizzard's button
+  frames are wide, so neighbouring buttons' frames overlap; which button
+  takes a click in the overlap has to be checked in the client.
+
+## 7. Pet bar autocast (`7-pet.html`)
+
+- Marker: **3, badge** (the player's choice; Claude had suggested 1, corner
+  notch). An 11 px round badge in the top-left inside corner of the icon:
+  the skin's ring lines (as the level badge on AnotherHUD's unit frames, no
+  studs) around a `panelTint` fill.
+- Autocast on: a 4 px `gold` dot in the badge with a soft `goldLine` glow,
+  breathing between 70% and 100% opacity, 1.4 s per cycle.
+- Can autocast, but off: the empty badge. Abilities that can't autocast have
+  no badge.
+- The pet bar uses the approved button look (§4) at Blizzard's pet button
+  size; toggled commands / stances (Attack, Defensive, ...) use the approved
+  active state.

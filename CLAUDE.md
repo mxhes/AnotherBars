@@ -13,7 +13,7 @@ Docs (created in Plan 1, same layout as AnotherHUD):
 
 ## Working with the player
 
-- **Artwork: mockups first.** Any new or changed art (button skins, borders, colors, icons, glows) is shown as a mockup and built only after the player approves it. Wait for the answer; don't build "in the meantime". Approved so far: AnotherHUD's `docs/mockups/4-buttons.html` and the totem bar in `5-resources.html` (`APPROVED.md` §4-5).
+- **Artwork: mockups first.** Any new or changed art (button skins, borders, colors, icons, glows) is shown as a mockup and built only after the player approves it. Wait for the answer; don't build "in the meantime". Approved so far (`docs/mockups/APPROVED.md`): buttons and proc glow (§4), totem bar (§5), padding 0 as one bar frame with the first button fixed (§6), pet autocast badge (§7).
 - **Ask questions.** When a request leaves something open that changes what gets built, ask (one question at a time, with your recommendation) instead of guessing.
 - **Other addons are not a source or an inspiration.** Only the player's own addons (AnotherLedger, AnotherHUD) may be copied and adapted: `Theme.lua`, fonts, skins, widgets, test harness, `.luacheckrc`, `.pkgmeta`, CI, Edit Mode glue, docs layout. Other installed addons may be read for basic client facts only (how a hook or API call works, whether an API exists), never for design, features, code or art.
 - **Merge only when the player says so.**
