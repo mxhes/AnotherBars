@@ -60,6 +60,7 @@ is done by the build.
 | `Skin/Draw.lua` | drawing helpers for our own frames: tinted tiles, line rects, gradient strips |
 | `Skin/Button.lua` | the approved button look on a Blizzard button (our back / front / text frames, states from hooks) |
 | `Skin/Glow.lua` | the gold pulse proc glow |
+| `Skin/Procs.lua` | which buttons glow: the client's proc events matched to each button's spell (or macro spell) |
 | `Skin/Autocast.lua`, `Media/Shapes/Disc.tga` | the pet autocast badge (disc stack as AnotherHUD's ring) |
 | `Bars/Common.lua` | one module per bar: Look / Text settings, create skins its buttons |
 | `Bars/ActionBar.lua`, `Bars/Stance.lua`, `Bars/Pet.lua` | the ten bar modules (Pet adds the autocast badge) |
@@ -88,6 +89,12 @@ textures go to alpha 0. Hooks (`Skin/Blizzard.lua`):
 the older overlay glow globals), and the pet bar's update with
 `GetPetActionInfo`. Hook bodies only show, hide and tint our regions and the
 icon.
+
+**Proc glow.** Blizzard's alert functions never reached our hook on Forever
+(`/abars glow` counted 0 alerts during procs), so `Skin/Procs.lua` drives the
+glow from `SPELL_ACTIVATION_OVERLAY_GLOW_SHOW` / `_HIDE` (spell id) and
+re-checks on slot, page and bonus bar changes; procs already up at login come
+from `IsSpellOverlayed`. The alert hooks stay as a second source.
 
 **Secret values.** Every range, usable, mana, checked or autocast value from
 the client goes through `Util.plain(v)` (nil for a secret) before a branch;

@@ -137,16 +137,28 @@ end
 -- Proc glow diagnostics (/abars glow): how many alert shows reached us.
 Button.alerts = { shown = 0, skinned = 0 }
 
+-- The proc glow on / off (from Blizzard's alert hooks or Skin/Procs.lua).
+function Button.setProc(b, on)
+  local st = state[b]
+  if not (st and st.glow) then return end
+  if on then st.glow:show() else st.glow:hide() end
+end
+
+-- fn(button) for every skinned button.
+function Button.each(fn)
+  for _, b in ipairs(skinned) do
+    if state[b] then fn(b) end
+  end
+end
+
 local function onAlertShow(b)
   Button.alerts.shown = Button.alerts.shown + 1
-  local st = state[b]
-  if st then Button.alerts.skinned = Button.alerts.skinned + 1 end
-  if st and st.glow then st.glow:show() end
+  if state[b] then Button.alerts.skinned = Button.alerts.skinned + 1 end
+  Button.setProc(b, true)
 end
 
 local function onAlertHide(b)
-  local st = state[b]
-  if st and st.glow then st.glow:hide() end
+  Button.setProc(b, false)
 end
 
 -- Our frames and textures of one button (created once).

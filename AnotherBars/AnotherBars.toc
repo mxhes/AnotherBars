@@ -26,6 +26,7 @@ Skin/Draw.lua
 Skin/Glow.lua
 Skin/Button.lua
 Skin/Autocast.lua
+Skin/Procs.lua
 Bars/Common.lua
 Bars/ActionBar.lua
 Bars/Stance.lua

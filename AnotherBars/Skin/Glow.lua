@@ -45,11 +45,15 @@ end
 function Glow:show()
   local alert = ns.Skin.Blizzard.spellAlert(self.button)
   if alert then alert:SetAlpha(0) end
+  if self.on then return end
+  self.on = true
   self.frame:Show()
   self.group:Play()
 end
 
 function Glow:hide()
+  if not self.on then return end
+  self.on = false
   self.group:Stop()
   self.frame:Hide()
 end

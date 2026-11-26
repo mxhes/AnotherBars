@@ -24,7 +24,9 @@ pages in `docs/mockups/` (served from that folder). Results under
 - [ ] States as on the mockup: hover, pressed (mouse and keybind), active
   (auto attack, a stance), out of range (icon red, hotkey red), no mana,
   unusable, cooldown swipe and gold time, empty slot while dragging a spell.
-- [ ] The proc glow pulses like the mockup and Blizzard's spell alert is gone.
+- [ ] The proc glow pulses like the mockup and Blizzard's spell alert is gone
+  (from the proc events since the alert hook saw no procs); also on a macro
+  that casts the procced spell, and after a `/reload` while a proc is up.
 - [ ] Texts: hotkey, macro name and count on / off and the font size work per
   bar and stay after `/reload`.
 - [ ] Pet bar: the badge as on `7-pet.html` (on, off, none); right-click on

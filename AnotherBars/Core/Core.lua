@@ -38,6 +38,7 @@ function Core.init()
       ns.Combat.after("create:" .. spec.id, function() spec.create(spec) end)
     end
   end
+  ns.Combat.after("procs", function() ns.Skin.Procs.start() end)
 end
 
 ns.Core = Core
