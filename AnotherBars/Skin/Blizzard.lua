@@ -93,13 +93,20 @@ function Blizzard.onUpdate(b, fn)
   Blizzard.hookOnce(b, "UpdateUsable", function(self) fn(self) end)
 end
 
--- fn(button, checked) after SetChecked (the value read back from the button).
+-- The button's checked flag as the game has it now (nil without GetChecked).
+function Blizzard.checked(b)
+  local get = b.GetChecked
+  if type(get) == "function" then return get(b) end
+  return nil
+end
+
+-- fn(button, checked) after SetChecked and after a click (PostClick): the
+-- value read back from the button. The game can change the flag without
+-- calling SetChecked (a click toggles it natively), so Skin/Button.lua also
+-- re-reads it on updates, key releases and ACTIONBAR_UPDATE_STATE.
 function Blizzard.onChecked(b, fn)
-  Blizzard.hookOnce(b, "SetChecked", function(self)
-    local get, checked = self.GetChecked, nil
-    if type(get) == "function" then checked = get(self) end
-    fn(self, checked)
-  end)
+  Blizzard.hookOnce(b, "SetChecked", function(self) fn(self, Blizzard.checked(self)) end)
+  hookScript(b, "PostClick", function(self) fn(self, Blizzard.checked(self)) end)
 end
 
 -- fn(button, pressed): keybind presses (SetButtonState) and mouse clicks.

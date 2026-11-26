@@ -89,7 +89,10 @@ textures go to alpha 0. Hooks (`Skin/Blizzard.lua`):
 `OnMouseUp` (HookScript), the spell alert (`ActionButtonSpellAlertManager` or
 the older overlay glow globals), and the pet bar's update with
 `GetPetActionInfo`. Hook bodies only show, hide and tint our regions and the
-icon.
+icon. The active edge follows `GetChecked`, re-read after `SetChecked`,
+`PostClick`, `Update`, a key release and `ACTIONBAR_UPDATE_STATE`: the game
+clears the flag after a cast without calling `SetChecked` (seen in the client
+with Whirlwind, Execute, Cleave and Bloodrage).
 
 **Proc glow.** On Forever the game never signals a proc (no alert, no proc
 event; Plan 3 results in `docs/CHECKLIST.md`). `Skin/Procs.lua` lights a
