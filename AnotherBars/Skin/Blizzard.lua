@@ -47,7 +47,7 @@ function Blizzard.regions(b)
   add(method(b, "GetHighlightTexture"))
   add(method(b, "GetPushedTexture"))
   add(method(b, "GetCheckedTexture"))
-  for _, k in ipairs({ "Flash", "Border", "NewActionTexture", "SpellHighlightTexture" }) do add(field(b, k)) end
+  for _, k in ipairs({ "Flash", "Border", "NewActionTexture", "SpellHighlightTexture", "SlotBackground", "SlotArt" }) do add(field(b, k)) end
   for _, k in ipairs({ "AutoCastOverlay", "AutoCastable", "AutoCastShine" }) do
     local t = field(b, k)
     if t then out.autocast[#out.autocast + 1] = t end
@@ -156,6 +156,20 @@ function Blizzard.onPetUpdate(fn)
   end
   local bar = rawget(_G, "PetActionBar")
   if not Blizzard.hookOnce(bar, "Update", run) then Blizzard.hookOnce(_G, "PetActionBar_Update", run) end
+  return run
+end
+
+-- fn(button) for each stance button after Blizzard updates the stance bar.
+-- UNVERIFIED (check in client): StanceBar:UpdateState or StanceBar_UpdateState.
+function Blizzard.onStanceUpdate(fn)
+  local function run()
+    for i = 1, 10 do
+      local b = rawget(_G, "StanceButton" .. i)
+      if b then fn(b) end
+    end
+  end
+  local bar = rawget(_G, "StanceBar")
+  if not Blizzard.hookOnce(bar, "UpdateState", run) then Blizzard.hookOnce(_G, "StanceBar_UpdateState", run) end
   return run
 end
 

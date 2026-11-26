@@ -17,7 +17,10 @@ pages in `docs/mockups/` (served from that folder). Results under
   `/dump issecretvalue ~= nil`, `/dump Settings.RegisterProxySetting ~= nil`.
 - [ ] All four skins (Settings window) on Action Bar 1 look like `4-buttons.html`:
   edge, shading, icon crop; Classic's round edge at button size; Gilded studs.
-- [ ] The back fill draws under the icon (our frame one level below the button).
+- [ ] The back fill draws under the icon (our frame one level below the button),
+  and Blizzard's slot art (`SlotBackground`, `SlotArt`) is gone.
+- [ ] Summoning a pet and changing stance update the pet / stance buttons
+  (`PetActionBar:Update`, `StanceBar:UpdateState`): no empty look over a filled slot.
 - [ ] States as on the mockup: hover, pressed (mouse and keybind), active
   (auto attack, a stance), out of range (icon red, hotkey red), no mana,
   unusable, cooldown swipe and gold time, empty slot while dragging a spell.

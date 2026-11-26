@@ -67,17 +67,24 @@ end
 local function tintIcon(b, st)
   local icon = st.regions.icon
   if not icon then return end
-  local usable, noMana = true, false
+  -- Stance and pet buttons have no action: Blizzard tints them.
   local action = b.action
   local isUsable = rawget(_G, "IsUsableAction")
-  if type(action) == "number" and type(isUsable) == "function" then
-    local u, m = isUsable(action)
-    usable, noMana = ns.Util.plain(u), ns.Util.plain(m)
+  if type(action) ~= "number" or type(isUsable) ~= "function" then return end
+  local u, m = isUsable(action)
+  local tint = ns.Look.iconTint(st.inRange, ns.Util.plain(u), ns.Util.plain(m))
+  if not tint then
+    -- unknown (secret): take back a tint of ours, so the icon doesn't stay red
+    if st.tinted then
+      icon:SetVertexColor(1, 1, 1)
+      if icon.SetDesaturated then icon:SetDesaturated(false) end
+      st.tinted = false
+    end
+    return
   end
-  local tint = ns.Look.iconTint(st.inRange, usable, noMana)
-  if not tint then return end
   icon:SetVertexColor(tint[1], tint[2], tint[3])
   if icon.SetDesaturated then icon:SetDesaturated(tint.desaturate and true or false) end
+  st.tinted = tint[1] ~= 1 or tint[2] ~= 1 or tint[3] ~= 1 or tint.desaturate == true
 end
 
 local function onUpdate(b)
@@ -89,6 +96,10 @@ local function onUpdate(b)
   showState(st)
   tintIcon(b, st)
 end
+
+-- Re-reads the empty slot and the tint (for bars Blizzard updates as a
+-- whole: pet, stance).
+Button.refresh = function(b) onUpdate(b) end
 
 local function onRange(b, inRange, checksRange)
   local st = state[b]

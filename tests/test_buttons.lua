@@ -92,15 +92,16 @@ h.test("a missing button is skipped", function()
   cleanup()
 end)
 
-h.test("range hook tints the icon, a secret leaves it", function()
+h.test("range hook tints the icon, a secret leaves Blizzard's tint", function()
   local ns, _, cleanup = setup()
   local b = button("ActionButton1")
   ns.Skin.Button.skin(b, OPTS)
-  _G.ActionButton_UpdateRangeIndicator(b, true, false)
-  h.eq(b.icon._color, { 0.8, 0.1, 0.1, nil })
+  -- in range and usable: white (ours, but no tint to take back)
   b.icon._color = nil
   _G.ActionButton_UpdateRangeIndicator(b, true, fakes.secret(1))
   h.eq(b.icon._color, nil)
+  _G.ActionButton_UpdateRangeIndicator(b, true, false)
+  h.eq(b.icon._color, { 0.8, 0.1, 0.1, nil })
   cleanup()
 end)
 
@@ -186,5 +187,50 @@ h.test("no field written on a skinned button", function()
   for k in pairs(b) do
     if not before[k] and not hooks[k] and k ~= "calls" then error("new field on button: " .. tostring(k)) end
   end
+  cleanup()
+end)
+
+h.test("final: refresh clears the empty look once the icon shows", function()
+  local ns, _, cleanup = setup()
+  local b = button("PetActionButton1")
+  b.Update = nil -- pet buttons have no per-button Update
+  b.icon._shown = false
+  ns.Skin.Button.skin(b, OPTS)
+  local st = ns.Skin.Button.state(b)
+  h.eq(st.empty._shown, true)
+  b.icon._shown = true
+  ns.Skin.Button.refresh(b)
+  h.eq(st.empty._shown, false)
+  cleanup()
+end)
+
+h.test("final: our red tint is undone when the next tint is unknown", function()
+  local ns, _, cleanup = setup()
+  local b = button("ActionButton1")
+  ns.Skin.Button.skin(b, OPTS)
+  _G.ActionButton_UpdateRangeIndicator(b, true, false)
+  h.eq(b.icon._color, { 0.8, 0.1, 0.1, nil })
+  _G.IsUsableAction = function() return fakes.secret(1), false end
+  _G.ActionButton_UpdateRangeIndicator(b, true, true)
+  h.eq(b.icon._color, { 1, 1, 1, nil })
+  cleanup()
+end)
+
+h.test("final: buttons without an action keep Blizzard's icon tint", function()
+  local ns, _, cleanup = setup()
+  local b = button("StanceButton1")
+  b.action = nil
+  ns.Skin.Button.skin(b, OPTS)
+  h.eq(b.icon._color, nil)
+  cleanup()
+end)
+
+h.test("final: Blizzard's slot art goes to alpha 0", function()
+  local ns, _, cleanup = setup()
+  local b = button("ActionButton1")
+  b.SlotBackground, b.SlotArt = fakes.frame(), fakes.frame()
+  ns.Skin.Button.skin(b, OPTS)
+  h.eq(b.SlotBackground._alpha, 0)
+  h.eq(b.SlotArt._alpha, 0)
   cleanup()
 end)

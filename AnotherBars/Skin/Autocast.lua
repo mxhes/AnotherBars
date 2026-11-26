@@ -66,6 +66,7 @@ end
 
 -- Adds the badge to a pet button (`front`: our front frame of the button).
 function Autocast.attach(b, front)
+  if badges[b] then return badges[b] end
   local B = ns.Theme.button.badge
   local frame = CreateFrame("Frame", nil, front or b)
   frame:SetAllPoints(front or b)

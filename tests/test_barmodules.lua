@@ -106,3 +106,22 @@ h.test("Core.init creates enabled bars only", function()
   for _, id in ipairs(created) do h.eq(id ~= "bar3", true) end
   client.restore()
 end)
+
+h.test("final: pet and stance updates refresh their buttons", function()
+  local ns = load()
+  local refreshed = {}
+  ns.Skin.Button.refresh = function(b) refreshed[#refreshed + 1] = b end
+  local p1, s1 = fakes.frame("PetActionButton1"), fakes.frame("StanceButton1")
+  local petBar, stanceBar = { Update = function() end }, { UpdateState = function() end }
+  local client = fakes.client()
+  fakes.withGlobals({ PetActionButton1 = p1, StanceButton1 = s1, PetActionBar = petBar, StanceBar = stanceBar,
+    GetPetActionInfo = function() return nil, nil, nil, nil, false, false end }, function()
+    ns.Modules.get("pet").create(ns.Modules.get("pet"))
+    ns.Modules.get("stance").create(ns.Modules.get("stance"))
+    refreshed = {}
+    petBar:Update()
+    stanceBar:UpdateState()
+  end)
+  h.eq(refreshed, { p1, s1 })
+  client.restore()
+end)
