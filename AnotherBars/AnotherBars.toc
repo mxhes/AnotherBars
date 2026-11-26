@@ -21,6 +21,7 @@ Core/Options.lua
 Core/Bars.lua
 Core/Grid.lua
 Core/Layout.lua
+Skin/Blizzard.lua
 EditMode/Panel.lua
 EditMode/System.lua
 Spike/Spike.lua
