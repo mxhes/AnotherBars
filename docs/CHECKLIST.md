@@ -26,6 +26,7 @@ Results:
 - 2026-11-27: Action Bars 2-8 fade. Action Bar 1 did not: `MainMenuBar` is
   nil on Forever (its buttons sit in `MainActionBarButtonContainer1`), so the
   main bar is now looked up as `MainActionBar` first.
+- 2026-11-27: after that fix Action Bar 1 fades too.
 
 
 ### Plan 4 padding and art
