@@ -4,6 +4,40 @@ What still has to be confirmed in the client, and the release steps.
 
 ## Open checks
 
+### Plan 4 padding and art
+
+- [ ] The art names resolve: `/dump MainMenuBar.EndCaps ~= nil`,
+  `/dump MainMenuBar.BorderArt ~= nil`, `/dump MainMenuBar.Background ~= nil`,
+  `/dump MainMenuBar.dividerPool ~= nil`. Note any that print `false`.
+- [ ] Hide Blizzard art on: the main bar's end caps, background and dividers
+  are gone; off: they come back. Anything Blizzard still draws around a bar
+  (name it, or a screenshot).
+- [ ] Padding 2 on Action Bars 1-8 and the Pet Bar: the gaps close, button 1
+  stays put; survives `/reload` and Blizzard's Icon Size / Padding changes;
+  rows and "# of Icons" keep the bar's shape.
+- [ ] Padding 0 looks like `docs/mockups/6-padding.html` in Classic, Forge and
+  Slate: one frame, thin dividers, hover / active / empty / cooldown inside
+  the icon, the proc glow around the icon.
+- [ ] Padding 0: clicking right on the seam between two icons casts the
+  button under the icon you see (the button frames overlap).
+- [ ] Own padding off brings Blizzard's spacing back without `/reload`; the
+  bar frame goes away.
+- [ ] Stance Bar: Own padding is off by default; turned on, its gaps close
+  and come back after a fight in which it re-laid out.
+- [ ] "Always Show Buttons" off: drag a spell, the empty slots that show land
+  in our grid (hidden buttons can be read: `/dump ActionButton12:GetLeft()`
+  while it is hidden prints a number).
+- [ ] Changing the skin re-packs padding 0 bars with the new edge.
+- [ ] The Edit Mode selection box may be larger than the closed-up bar
+  (expected: the bar frame is never resized).
+- [ ] No Lua errors; `/console taintLog 1`: no `AnotherBars` lines in
+  `_forever_\Logs\taint.log` after a fight with padding 0 on.
+
+Results:
+
+- (not run yet)
+
+
 ### Active edge after a cast
 
 - [x] Whirlwind, Execute, Cleave and Bloodrage lose the gold edge after the
