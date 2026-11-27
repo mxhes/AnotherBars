@@ -176,11 +176,27 @@ h.test("no fields written on Blizzard frames", function()
   cleanup()
 end)
 
-h.test("a hidden button with a position is packed", function()
+h.test("hidden buttons stay out of the grid and the edges", function()
+  -- "# of Icons" 2: Blizzard hides button 3 on a stale anchor far away
   local ns, _, _, buttons, cleanup = setup(false)
   buttons[3]._shown = false
+  buttons[3]._left = 900
   ns.Layout.repack("bar1", 0)
-  h.eq(points(buttons[3]), { { "CENTER", buttons[3]._container, "CENTER", -4, 0 } })
+  h.eq(points(buttons[3]), {})
+  h.eq(ns.Layout.edges("bar1").right, buttons[2])
+  local cells = ns.Layout.cells("bar1")
+  h.eq(#cells, 2)
+  cleanup()
+end)
+
+h.test("reset leaves a button Blizzard re-anchored since our repack", function()
+  local ns, _, _, buttons, cleanup = setup(false)
+  ns.Layout.repack("bar1", 0)
+  local other = fakes.frame("Other")
+  buttons[2]._points = { { "TOPLEFT", other, "TOPLEFT", 7, 0 } }
+  buttons[2].calls = {}
+  ns.Layout.reset("bar1")
+  h.eq(points(buttons[2]), {})
   cleanup()
 end)
 

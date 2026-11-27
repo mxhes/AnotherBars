@@ -127,8 +127,10 @@ change (the edge width sets the padding-0 step). It queues, in this order:
 2. `Layout.repack(id, Grid.spacing(padding, edge))` with Own padding on,
    else `Layout.reset(id)` (every moved button back on Blizzard's anchor).
    At padding 0 the spacing is `1 - 2 * edge`: the buttons overlap and
-   their icons sit 1 px apart. Hidden buttons (empty slots) are packed when
-   their position can be read.
+   their icons sit 1 px apart. Only shown buttons are packed (past "# of
+   Icons" Blizzard leaves hidden ones on stale anchors); an empty slot that
+   shows while a spell is dragged repacks the bar. `reset` restores only
+   buttons still on our anchor.
 3. `Skin/BarFrame.lua` at own padding 0: our panel, anchored to the
    outermost buttons of the repack, with `Grid.dividers` lines. The buttons
    get `opts.framed`: no fill or edge of their own, hover as a 1 px gold

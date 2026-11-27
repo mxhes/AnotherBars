@@ -25,14 +25,14 @@ function Layout.watch(barId, onLayout)
   end)
 end
 
--- The bar's buttons that have a position, in order: shown ones, and hidden
--- ones (empty slots) whose position can be read.
--- UNVERIFIED (check in client): GetLeft / GetTop answer for a hidden button.
+-- The bar's shown buttons, in order. Hidden ones stay out: past "# of
+-- Icons" Blizzard leaves them on stale anchors. An empty slot that shows
+-- (dragging a spell) repacks the bar (Layout.onShowRepack).
 local function placedButtons(bar)
   local list = {}
   for i = 1, bar.count do
     local b = _G[bar.button .. i]
-    if b and (b:IsShown() or (b:GetLeft() and b:GetTop())) then list[#list + 1] = b end
+    if b and b:IsShown() then list[#list + 1] = b end
   end
   return list
 end
@@ -149,7 +149,8 @@ function Layout.reset(barId)
     for i = 1, bar.count do
       local b = _G[bar.button .. i]
       local st = b and state[b]
-      if st and st.set and st.base then
+      -- only a button still on our anchor: Blizzard may have re-anchored it
+      if st and st.set and st.base and sameAnchor(anchorOf(b), st.set) then
         local base = st.base
         b:ClearAllPoints()
         b:SetPoint(base[1], base[2], base[3], base[4], base[5])

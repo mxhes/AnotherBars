@@ -25,8 +25,9 @@ What still has to be confirmed in the client, and the release steps.
 - [ ] Stance Bar: Own padding is off by default; turned on, its gaps close
   and come back after a fight in which it re-laid out.
 - [ ] "Always Show Buttons" off: drag a spell, the empty slots that show land
-  in our grid (hidden buttons can be read: `/dump ActionButton12:GetLeft()`
-  while it is hidden prints a number).
+  in our grid (after the drag starts, out of combat).
+- [ ] "# of Icons" 6 on a bar at padding 0: the frame wraps the six buttons
+  only.
 - [ ] Changing the skin re-packs padding 0 bars with the new edge.
 - [ ] The Edit Mode selection box may be larger than the closed-up bar
   (expected: the bar frame is never resized).
