@@ -147,7 +147,7 @@ function Common.define(id, extra, overrides)
     settings = settings(overrides.tooltips),
     create = function(spec)
       skinAll(spec)
-      spec.frame = rawget(_G, bar.frame) or true
+      spec.frame = ns.Bars.frame(id) or true
       if extra then extra(spec) end
       startLayout(id)
       fade(id)

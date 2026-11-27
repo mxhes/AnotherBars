@@ -58,7 +58,7 @@ function SkinArt.apply(barId, hideArt)
   local bar = ns.Bars.get(barId)
   if not bar then return end
   ns.Combat.after("art:" .. barId, function()
-    local frame = rawget(_G, bar.frame)
+    local frame = ns.Bars.frame(barId)
     if type(frame) ~= "table" then return end
     for _, obj in ipairs(objects(barId, frame)) do
       if hideArt then hide(obj) else show(obj) end

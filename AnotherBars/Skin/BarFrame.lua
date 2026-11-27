@@ -98,7 +98,7 @@ function BarFrame.apply(barId, on)
     end
     local cells, buttons = ns.Layout.cells(barId)
     local edges = ns.Layout.edges(barId)
-    local parent = rawget(_G, bar.frame)
+    local parent = ns.Bars.frame(barId)
     if not (cells and buttons and edges and parent) then
       if st then st.frame:Hide() end
       return

@@ -13,6 +13,9 @@ What still has to be confirmed in the client, and the release steps.
 - [ ] Edit Mode open: every faded bar is full; closed: faded again (LibEditMode's
   `enter` / `exit` callbacks fire on Forever).
 - [ ] Back to 100: the bar is full and stays full.
+- [ ] Action Bar 1 fades too: `/dump MainActionBar ~= nil` prints `true` and
+  `/abars fade` has a `bar1:` line. Its art hiding and padding-0 frame still
+  work (they look the frame up the same way).
 - [ ] Buttons on a faded bar still work (click and key).
 - [ ] The proc glow, our button art and the padding-0 frame fade with the bar.
 - [ ] No Lua errors; no `AnotherBars` lines in the taint log after a fight
@@ -20,7 +23,9 @@ What still has to be confirmed in the client, and the release steps.
 
 Results:
 
-- (not run yet)
+- 2026-11-27: Action Bars 2-8 fade. Action Bar 1 did not: `MainMenuBar` is
+  nil on Forever (its buttons sit in `MainActionBarButtonContainer1`), so the
+  main bar is now looked up as `MainActionBar` first.
 
 
 ### Plan 4 padding and art

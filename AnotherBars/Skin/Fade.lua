@@ -68,7 +68,7 @@ end
 -- opts = { fadeAlpha, fadeMouseover }. Starts or stops the bar's driver.
 function SkinFade.apply(barId, opts)
   local bar = ns.Bars.get(barId)
-  local frame = bar and rawget(_G, bar.frame)
+  local frame = bar and ns.Bars.frame(barId)
   if type(frame) ~= "table" then return end
   ensureEvents()
   local d = drivers[barId]

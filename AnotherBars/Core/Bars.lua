@@ -1,7 +1,8 @@
 local ADDON, ns = ...
 
 -- Blizzard's bars that AnotherBars re-skins, in panel order. Pure data.
---   frame:  the bar frame's global name
+--   frame:  the bar frame's global name; frames: names to try in order
+--           when it differs between clients (Bars.frame)
 --   button: the buttons' global name prefix (button .. 1 .. count)
 --   system: the key in Enum.EditModeActionBarSystemIndices
 -- UNVERIFIED (check in client): every frame / button name and system key on
@@ -9,7 +10,7 @@ local ADDON, ns = ...
 local Bars = {}
 
 Bars.list = {
-  { id = "bar1", label = "Action Bar 1", frame = "MainMenuBar", button = "ActionButton", count = 12, system = "MainBar" },
+  { id = "bar1", label = "Action Bar 1", frame = "MainActionBar", frames = { "MainActionBar", "MainMenuBar" }, button = "ActionButton", count = 12, system = "MainBar" },
   { id = "bar2", label = "Action Bar 2", frame = "MultiBarBottomLeft", button = "MultiBarBottomLeftButton", count = 12, system = "Bar2" },
   { id = "bar3", label = "Action Bar 3", frame = "MultiBarBottomRight", button = "MultiBarBottomRightButton", count = 12, system = "Bar3" },
   { id = "bar4", label = "Action Bar 4", frame = "MultiBarRight", button = "MultiBarRightButton", count = 12, system = "RightBar1" },
@@ -26,6 +27,20 @@ for _, bar in ipairs(Bars.list) do byId[bar.id] = bar end
 
 function Bars.get(id)
   return byId[id]
+end
+
+-- The bar's frame, or nil. Forever names the main bar MainActionBar (its
+-- buttons sit in MainActionBarButtonContainer1..12); older clients call it
+-- MainMenuBar.
+-- UNVERIFIED (check in client): MainActionBar is the main bar on Forever.
+function Bars.frame(id)
+  local bar = byId[id]
+  if not bar then return nil end
+  for _, name in ipairs(bar.frames or { bar.frame }) do
+    local f = rawget(_G, name)
+    if type(f) == "table" then return f end
+  end
+  return nil
 end
 
 ns.Bars = Bars
