@@ -4,7 +4,7 @@ local fakes = dofile("tests/fakes.lua")
 local FILES = { "Core/Util.lua", "Core/Theme.lua", "Core/DB.lua", "Core/Modules.lua", "Core/Combat.lua",
   "Core/Options.lua", "Core/Bars.lua", "Core/Grid.lua", "Core/Layout.lua", "Core/Look.lua",
   "Skin/Blizzard.lua", "Skin/Draw.lua",
-  "Skin/Glow.lua", "Skin/Button.lua", "Skin/Autocast.lua", "Core/Art.lua", "Skin/Art.lua",
+  "Skin/Glow.lua", "Skin/Button.lua", "Skin/Autocast.lua", "Core/Art.lua", "Skin/Art.lua", "Skin/BarFrame.lua",
   "Bars/Common.lua", "Bars/ActionBar.lua", "Bars/Stance.lua", "Bars/Pet.lua" }
 
 -- Loads the bar modules with Button.skin / Autocast faked; returns ns and
@@ -255,5 +255,21 @@ h.test("the bar's art follows Hide Blizzard art", function()
   ns.Modules.get("bar1").create(ns.Modules.get("bar1"))
   ns.Options.set("bar1", "hideArt", false)
   h.eq(got, { { "bar1", true }, { "bar1", false } })
+  client.restore()
+end)
+
+h.test("the bar frame shows at own padding 0 only", function()
+  local ns = load()
+  local client = fakes.client()
+  local rec = stubLayout(ns)
+  local got = {}
+  ns.Skin.BarFrame.apply = function(id, on) got[#got + 1] = { id, on }; rec.order = (rec.order or "") .. "f" end
+  local repack = ns.Layout.repack
+  ns.Layout.repack = function(...) rec.order = (rec.order or "") .. "r"; repack(...) end
+  ns.Modules.get("bar1").create(ns.Modules.get("bar1"))
+  ns.Options.set("bar1", "padding", 0)
+  ns.Options.set("bar1", "ownPadding", false)
+  h.eq(got, { { "bar1", false }, { "bar1", true }, { "bar1", false } })
+  h.eq(rec.order, "rfrf" .. "f")
   client.restore()
 end)

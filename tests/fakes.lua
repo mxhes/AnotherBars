@@ -90,6 +90,9 @@ function methods.SetAttribute(self, k, v) self._attrs[k] = v end
 function methods.GetAttribute(self, k) return self._attrs[k] end
 function methods.SetAlpha(self, a) self._alpha = a end
 function methods.GetAlpha(self) return self._alpha or 1 end
+function methods.SetFrameLevel(self, l) self._level = l end
+function methods.GetFrameLevel(self) return self._level end
+function methods.SetBackdrop(self, b) self._backdrop = b end
 function methods.SetAlphaFromBoolean(self, b, yes, no) self._alphaFrom = { b, yes, no } end
 function methods.SetTimerDuration(self, d, interp, dir) self._timer = { d, interp, dir } end
 function methods.SetTexture(self, file) self._texture = file end

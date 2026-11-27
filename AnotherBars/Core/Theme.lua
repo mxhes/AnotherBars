@@ -110,6 +110,8 @@ Theme.button = {
   activeGlow = 6,
   activeGlowAlpha = 0.6,
   roundEdgeSize = 8,
+  -- the padding-0 bar frame's round edge: 5 px corners (APPROVED.md §6)
+  barRoundEdgeSize = 10,
   iconCrop = 0.08,
   glow = { out = 5, line = 2, outer = 10, outerAlpha = 0.75, inner = 8, innerAlpha = 0.6,
     alphaLow = 0.55, alphaHigh = 1, scaleHigh = 1.06, period = 1.1 },

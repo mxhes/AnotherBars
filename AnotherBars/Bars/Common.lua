@@ -67,12 +67,15 @@ function Common.layout(id)
   if ns.Skin and ns.Skin.Art then ns.Skin.Art.apply(id, O.get(id, "hideArt") == true) end
   local Layout = ns.Layout
   if not (Layout and ns.Grid) then return end
-  if O.get(id, "ownPadding") == true then
+  local own, padding = O.get(id, "ownPadding") == true, O.get(id, "padding") or 0
+  if own then
     local edge = ns.Look.edgeWidth(ns.Look.skin().border)
-    Layout.repack(id, ns.Grid.spacing(O.get(id, "padding") or 0, edge))
+    Layout.repack(id, ns.Grid.spacing(padding, edge))
   else
     Layout.reset(id)
   end
+  -- after the repack (queued in that order): padding 0's one bar frame
+  if ns.Skin and ns.Skin.BarFrame then ns.Skin.BarFrame.apply(id, ns.Look.framed(own, padding)) end
 end
 
 function Common.layoutAll()
