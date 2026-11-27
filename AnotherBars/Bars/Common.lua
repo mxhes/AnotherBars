@@ -58,13 +58,15 @@ local created = {} -- [id] = true once the bar's module is created, in order
 local createdOrder = {}
 local events
 
--- Our padding on the bar (Core/Layout.lua): Blizzard's anchors back when
--- own padding is off. Re-run after each Blizzard layout, a shown button,
+-- Blizzard's art (Skin/Art.lua) and our padding on the bar
+-- (Core/Layout.lua): Blizzard's anchors back when own padding is off. Re-run after each Blizzard layout, a shown button,
 -- PLAYER_ENTERING_WORLD / EDIT_MODE_LAYOUTS_UPDATED and a skin change.
 function Common.layout(id)
+  local O = ns.Options
+  -- Blizzard makes the main bar's dividers on layout: hide them again.
+  if ns.Skin and ns.Skin.Art then ns.Skin.Art.apply(id, O.get(id, "hideArt") == true) end
   local Layout = ns.Layout
   if not (Layout and ns.Grid) then return end
-  local O = ns.Options
   if O.get(id, "ownPadding") == true then
     local edge = ns.Look.edgeWidth(ns.Look.skin().border)
     Layout.repack(id, ns.Grid.spacing(O.get(id, "padding") or 0, edge))

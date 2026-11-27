@@ -4,7 +4,7 @@ local fakes = dofile("tests/fakes.lua")
 local FILES = { "Core/Util.lua", "Core/Theme.lua", "Core/DB.lua", "Core/Modules.lua", "Core/Combat.lua",
   "Core/Options.lua", "Core/Bars.lua", "Core/Grid.lua", "Core/Layout.lua", "Core/Look.lua",
   "Skin/Blizzard.lua", "Skin/Draw.lua",
-  "Skin/Glow.lua", "Skin/Button.lua", "Skin/Autocast.lua",
+  "Skin/Glow.lua", "Skin/Button.lua", "Skin/Autocast.lua", "Core/Art.lua", "Skin/Art.lua",
   "Bars/Common.lua", "Bars/ActionBar.lua", "Bars/Stance.lua", "Bars/Pet.lua" }
 
 -- Loads the bar modules with Button.skin / Autocast faked; returns ns and
@@ -243,5 +243,17 @@ h.test("a skin change re-runs every created bar's layout", function()
   rec.repack = {}
   ns.BarModules.Common.layoutAll()
   h.eq(rec.repack, { { "bar2", 2 } })
+  client.restore()
+end)
+
+h.test("the bar's art follows Hide Blizzard art", function()
+  local ns = load()
+  local client = fakes.client()
+  stubLayout(ns)
+  local got = {}
+  ns.Skin.Art.apply = function(id, hide) got[#got + 1] = { id, hide } end
+  ns.Modules.get("bar1").create(ns.Modules.get("bar1"))
+  ns.Options.set("bar1", "hideArt", false)
+  h.eq(got, { { "bar1", true }, { "bar1", false } })
   client.restore()
 end)
