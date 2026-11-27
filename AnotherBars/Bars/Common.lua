@@ -9,7 +9,7 @@ local Common = {}
 local KEYS = { "shading", "hotkey", "macro", "count", "fontSize" }
 
 Common.defaults = { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10,
-  hideArt = true, ownPadding = true, padding = 2 }
+  hideArt = true, ownPadding = true, padding = 2, fadeAlpha = 100, fadeMouseover = true }
 
 -- tooltips: per-bar replacements { [key] = text }.
 local function settings(tooltips)
@@ -32,6 +32,12 @@ local function settings(tooltips)
       { key = "count", type = "checkbox", label = "Show count", tooltip = "Item counts and spell charges" },
       { key = "fontSize", type = "slider", label = "Font size", min = 6, max = 16, step = 1,
         tooltip = "Size of the hotkey; the other texts follow" },
+    } },
+    { section = "Fading", controls = {
+      { key = "fadeAlpha", type = "slider", label = "Opacity out of combat", min = 0, max = 100, step = 5,
+        tooltip = "How visible the bar is out of combat; 100 never fades" },
+      { key = "fadeMouseover", type = "checkbox", label = "Full on mouse-over",
+        tooltip = "Shows the bar fully while the mouse is over it" },
     } },
   }
 end
@@ -107,6 +113,16 @@ local function startLayout(id)
   Common.layout(id)
 end
 
+-- The bar's fade opts (Skin/Fade.lua).
+function Common.fadeOpts(id)
+  return { fadeAlpha = ns.Options.get(id, "fadeAlpha"), fadeMouseover = ns.Options.get(id, "fadeMouseover") }
+end
+
+-- Alpha is allowed in combat: no Combat.after.
+local function fade(id)
+  if ns.Skin and ns.Skin.Fade then ns.Skin.Fade.apply(id, Common.fadeOpts(id)) end
+end
+
 local function skinAll(spec)
   local opts = Common.opts(spec.id)
   for _, b in ipairs(Common.buttons(spec.id)) do ns.Skin.Button.skin(b, opts) end
@@ -131,13 +147,15 @@ function Common.define(id, extra, overrides)
     settings = settings(overrides.tooltips),
     create = function(spec)
       skinAll(spec)
-      spec.frame = rawget(_G, bar.frame) or true
+      spec.frame = ns.Bars.frame(id) or true
       if extra then extra(spec) end
       startLayout(id)
+      fade(id)
     end,
     apply = function(spec)
       skinAll(spec)
       Common.layout(id)
+      fade(id)
     end,
   }
 end

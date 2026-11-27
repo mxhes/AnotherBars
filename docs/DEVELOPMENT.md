@@ -57,6 +57,7 @@ is done by the build.
 | `EditMode/System.lua` | adds each bar module's settings to Blizzard's own bar panel (`AddSystemSettings`) |
 | `Core/Reactive.lua` | the reactive spell list per class and the glow rule (usable and not on cooldown) |
 | `Core/Art.lua` | pure: Blizzard's bar art per bar (dot paths and pools) that Hide Blizzard art hides |
+| `Core/Fade.lua` | pure fading rule: the alpha a bar wants (combat, Edit Mode, mouse-over, opacity) and the step toward it |
 | `Core/Look.lua` | pure look rules: skin of the profile, edge lines, shading, icon tints, text sizes |
 | `Skin/Blizzard.lua` | every Blizzard button region and hook name, in one place (missing names do nothing) |
 | `Skin/Draw.lua` | drawing helpers for our own frames: tinted tiles, line rects, gradient strips |
@@ -65,6 +66,7 @@ is done by the build.
 | `Skin/Procs.lua` | which buttons glow: the client's proc events matched to each button's spell (or macro spell) |
 | `Skin/Art.lua` | hides / shows the listed art by alpha 0, keeping each region's own alpha in our table |
 | `Skin/BarFrame.lua` | padding 0: one skin panel of ours around the bar and 1 px dividers between the icons |
+| `Skin/Fade.lua` | one driver frame of ours per fading bar: polls the mouse, animates the bar frame's alpha |
 | `Skin/Autocast.lua`, `Media/Shapes/Disc.tga` | the pet autocast badge (disc stack as AnotherHUD's ring) |
 | `Bars/Common.lua` | one module per bar: Look / Text settings, create skins its buttons; `Common.layout` runs art, padding and bar frame |
 | `Bars/ActionBar.lua`, `Bars/Stance.lua`, `Bars/Pet.lua` | the ten bar modules (Pet adds the autocast badge) |
@@ -135,6 +137,23 @@ change (the edge width sets the padding-0 step). It queues, in this order:
    outermost buttons of the repack, with `Grid.dividers` lines. The buttons
    get `opts.framed`: no fill or edge of their own, hover as a 1 px gold
    inner edge, and the glow placed around the icon (`Glow.place`).
+
+**Fading (Plan 5).** `Common` calls `Skin.Fade.apply(id, fadeOpts)` on
+create and on a setting change, outside `Combat.after` (alpha on a bar frame
+is allowed in combat, Plan 1 spike). While the bar's opacity is below 100 a
+driver frame of ours runs `OnUpdate`: every 0.1 s it reads `IsMouseOver` of
+the bar frame (gaps included) and its shown buttons, then moves the bar's
+alpha toward `Fade.target` with `Fade.step` (0.2 s up, 0.5 s down). It steps
+its own copy of the alpha, never `GetAlpha` (the client stores a 32-bit float
+that never reads back equal, and an outside change must not be fought), and
+calls `SetAlpha` only when that copy changes: a settled bar is not written. Combat comes from `PLAYER_REGEN_DISABLED` /
+`_ENABLED`, Edit Mode from LibEditMode's `enter` / `exit` callbacks
+(`EditMode/System.lua`). Back at 100 the driver sets alpha 1 once (if it
+changed it) and stops. `/abars fade` prints each driver's state
+(`Skin.Fade.report`: combat, Edit Mode, our alpha, target, mouse, the
+frame's alpha) for client checks. Never `UIFrameFadeIn` / `UIFrameFadeOut`: they write
+`fadeInfo` onto the frame (taint). Our overlays, glow and bar frame are
+children of the bar or its buttons and fade with it.
 
 **Adding an art region:** one dot path under the bar's id in
 `Art.REGIONS` (`Core/Art.lua`), or a pool key in `Art.POOLS`. Names the

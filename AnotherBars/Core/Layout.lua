@@ -14,7 +14,7 @@ local callbacks = {} -- [barId] = onLayout
 -- on Forever (docs/CHECKLIST.md, "Plan 1 spike").
 function Layout.watch(barId, onLayout)
   local bar = ns.Bars.get(barId)
-  local frame = bar and _G[bar.frame]
+  local frame = bar and ns.Bars.frame(barId)
   if not frame or type(frame.UpdateGridLayout) ~= "function" then return end
   callbacks[barId] = callbacks[barId] or onLayout
   if watched[barId] then return end

@@ -18,9 +18,25 @@ end
 
 -- UNVERIFIED (check in client): Enum.EditModeSystem.ActionBar and the keys of
 -- Enum.EditModeActionBarSystemIndices on Forever (docs/CHECKLIST.md).
+local callbacksSet = false
+
+-- Every bar shows fully while Edit Mode is open (Skin/Fade.lua).
+-- UNVERIFIED (check in client): LibEditMode's enter / exit callbacks fire
+-- on Forever.
+local function watchEditMode(lem)
+  if callbacksSet or type(lem.RegisterCallback) ~= "function" then return end
+  callbacksSet = true
+  local function set(on)
+    if ns.Skin and ns.Skin.Fade then ns.Skin.Fade.setEditMode(on) end
+  end
+  lem:RegisterCallback("enter", function() set(true) end)
+  lem:RegisterCallback("exit", function() set(false) end)
+end
+
 function System.attachAll()
   local lem = System.lib()
   if not lem then return end
+  watchEditMode(lem)
   local enum = Enum
   local system = enum and enum.EditModeSystem and enum.EditModeSystem.ActionBar
   local indices = enum and enum.EditModeActionBarSystemIndices

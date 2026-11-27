@@ -4,7 +4,7 @@ local fakes = dofile("tests/fakes.lua")
 local FILES = { "Core/Util.lua", "Core/Theme.lua", "Core/DB.lua", "Core/Modules.lua", "Core/Combat.lua",
   "Core/Options.lua", "Core/Bars.lua", "Core/Grid.lua", "Core/Layout.lua", "Core/Look.lua",
   "Skin/Blizzard.lua", "Skin/Draw.lua",
-  "Skin/Glow.lua", "Skin/Button.lua", "Skin/Autocast.lua", "Core/Art.lua", "Skin/Art.lua", "Skin/BarFrame.lua",
+  "Skin/Glow.lua", "Skin/Button.lua", "Skin/Autocast.lua", "Core/Art.lua", "Skin/Art.lua", "Skin/BarFrame.lua", "Core/Fade.lua", "Skin/Fade.lua",
   "Bars/Common.lua", "Bars/ActionBar.lua", "Bars/Stance.lua", "Bars/Pet.lua" }
 
 -- Loads the bar modules with Button.skin / Autocast faked; returns ns and
@@ -43,10 +43,11 @@ h.test("Look and Text sections with their defaults", function()
       h.eq(type(c.tooltip), "string", c.key)
     end
   end
-  h.eq(keys, { "shading", "hideArt", "ownPadding", "padding", "hotkey", "macro", "count", "fontSize" })
+  h.eq(keys, { "shading", "hideArt", "ownPadding", "padding", "hotkey", "macro", "count", "fontSize",
+    "fadeAlpha", "fadeMouseover" })
   h.eq(spec.settings[1].controls[1].values, { "Skin", "Bronze", "Raised", "Flat" })
   h.eq(spec.defaults, { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10,
-    hideArt = true, ownPadding = true, padding = 2 })
+    hideArt = true, ownPadding = true, padding = 2, fadeAlpha = 100, fadeMouseover = true })
   local pad = spec.settings[1].controls[4]
   h.eq({ pad.min, pad.max, pad.step }, { 0, 10, 1 })
   local size = spec.settings[2].controls[4]
@@ -282,4 +283,30 @@ h.test("opts say framed at own padding 0 only", function()
   h.eq(ns.BarModules.Common.opts("bar1").framed, true)
   ns.DB.profile().modules.bar1 = { padding = 0, ownPadding = false }
   h.eq(ns.BarModules.Common.opts("bar1").framed, false)
+end)
+
+h.test("Fading section after Look and Text", function()
+  local ns = load()
+  for _, spec in ipairs(ns.Modules.list()) do
+    local names = {}
+    for i, s in ipairs(spec.settings) do names[i] = s.section end
+    h.eq(names, { "Look", "Text", "Fading" }, spec.id)
+    h.eq(spec.defaults.fadeAlpha, 100)
+    h.eq(spec.defaults.fadeMouseover, true)
+    local slider = spec.settings[3].controls[1]
+    h.eq({ slider.key, slider.min, slider.max, slider.step }, { "fadeAlpha", 0, 100, 5 })
+    h.eq(spec.settings[3].controls[2].key, "fadeMouseover")
+  end
+end)
+
+h.test("create and a setting apply the bar's fade", function()
+  local ns = load()
+  local client = fakes.client()
+  stubLayout(ns)
+  local got = {}
+  ns.Skin.Fade.apply = function(id, opts) got[#got + 1] = { id, opts } end
+  ns.Modules.get("bar2").create(ns.Modules.get("bar2"))
+  ns.Options.set("bar2", "fadeAlpha", 50)
+  h.eq(got, { { "bar2", { fadeAlpha = 100, fadeMouseover = true } }, { "bar2", { fadeAlpha = 50, fadeMouseover = true } } })
+  client.restore()
 end)
