@@ -50,4 +50,25 @@ function Grid.repack(offsets, w, h, padding)
   return Grid.offsets(Grid.cells(offsets, w, h), w, h, padding)
 end
 
+-- The gap passed to Grid.repack: `padding` above 0; at 0 the buttons
+-- overlap so their icons (inset by `edge`) sit 1 px apart.
+function Grid.spacing(padding, edge)
+  if padding > 0 then return padding end
+  return 1 - 2 * edge
+end
+
+-- Neighbouring cells: { i, j, axis }, "v" for a vertical line between two
+-- cells of a row (i on the left), "h" for a horizontal line between two
+-- cells of a column (i on top; up is +y).
+function Grid.dividers(cells)
+  local out = {}
+  for i, a in ipairs(cells) do
+    for j, b in ipairs(cells) do
+      if a[2] == b[2] and b[1] - a[1] == 1 then out[#out + 1] = { i, j, "v" } end
+      if a[1] == b[1] and a[2] - b[2] == 1 then out[#out + 1] = { i, j, "h" } end
+    end
+  end
+  return out
+end
+
 ns.Grid = Grid

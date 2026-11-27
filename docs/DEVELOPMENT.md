@@ -51,19 +51,22 @@ is done by the build.
 | `Core/Modules.lua`, `Core/Options.lua` | module registry (kinds `bar` / `misc`, optional `system`), settings |
 | `Core/Combat.lua` | `Combat.after(key, fn)`: queues work until combat ends |
 | `Core/Bars.lua` | the ten Blizzard bars: frame, button prefix, count, Edit Mode system key |
-| `Core/Grid.lua` | pure padding math: Blizzard's rows / columns from button offsets, new offsets for our padding |
+| `Core/Grid.lua` | pure padding math: Blizzard's rows / columns from button offsets, new offsets for our padding, the padding-0 step, divider pairs |
 | `Core/Layout.lua` | client glue: hook after Blizzard lays out a bar, move its buttons to our padding by changing only the offset on Blizzard's own anchor (main bar: each button's container), out of combat |
 | `EditMode/Panel.lua` | pure: a module's `settings` -> LibEditMode setting rows (from AnotherHUD) |
 | `EditMode/System.lua` | adds each bar module's settings to Blizzard's own bar panel (`AddSystemSettings`) |
 | `Core/Reactive.lua` | the reactive spell list per class and the glow rule (usable and not on cooldown) |
+| `Core/Art.lua` | pure: Blizzard's bar art per bar (dot paths and pools) that Hide Blizzard art hides |
 | `Core/Look.lua` | pure look rules: skin of the profile, edge lines, shading, icon tints, text sizes |
 | `Skin/Blizzard.lua` | every Blizzard button region and hook name, in one place (missing names do nothing) |
 | `Skin/Draw.lua` | drawing helpers for our own frames: tinted tiles, line rects, gradient strips |
 | `Skin/Button.lua` | the approved button look on a Blizzard button (our back / front / text frames, states from hooks) |
 | `Skin/Glow.lua` | the gold pulse proc glow |
 | `Skin/Procs.lua` | which buttons glow: the client's proc events matched to each button's spell (or macro spell) |
+| `Skin/Art.lua` | hides / shows the listed art by alpha 0, keeping each region's own alpha in our table |
+| `Skin/BarFrame.lua` | padding 0: one skin panel of ours around the bar and 1 px dividers between the icons |
 | `Skin/Autocast.lua`, `Media/Shapes/Disc.tga` | the pet autocast badge (disc stack as AnotherHUD's ring) |
-| `Bars/Common.lua` | one module per bar: Look / Text settings, create skins its buttons |
+| `Bars/Common.lua` | one module per bar: Look / Text settings, create skins its buttons; `Common.layout` runs art, padding and bar frame |
 | `Bars/ActionBar.lua`, `Bars/Stance.lua`, `Bars/Pet.lua` | the ten bar modules (Pet adds the autocast badge) |
 | `UI/Settings.lua` | the Settings window: Blizzard's Settings panel, skin and bars on / off |
 | `Core/Core.lua` | start-up and the `/abars` slash command |
@@ -112,6 +115,30 @@ class is a new key. Any rank's id works, since buttons match by name. The
 tests never name the shipped list, so no test changes; a test checks every
 entry is valid (`tests/test_reactive.lua`). Add a CHECKLIST line for the
 client check.
+
+**Padding and art (Plan 4).** `Common.layout(id)` runs per bar on create,
+on a setting change, after Blizzard's `UpdateGridLayout`, when a button is
+shown, on `PLAYER_ENTERING_WORLD` / `EDIT_MODE_LAYOUTS_UPDATED` (the main
+bar's buttons only sit right once the Edit Mode layout is in) and on a skin
+change (the edge width sets the padding-0 step). It queues, in this order:
+
+1. `Skin/Art.lua`: Hide Blizzard art (the main bar's dividers are made on
+   each layout, so they are hidden again each time).
+2. `Layout.repack(id, Grid.spacing(padding, edge))` with Own padding on,
+   else `Layout.reset(id)` (every moved button back on Blizzard's anchor).
+   At padding 0 the spacing is `1 - 2 * edge`: the buttons overlap and
+   their icons sit 1 px apart. Only shown buttons are packed (past "# of
+   Icons" Blizzard leaves hidden ones on stale anchors); an empty slot that
+   shows while a spell is dragged repacks the bar. `reset` restores only
+   buttons still on our anchor.
+3. `Skin/BarFrame.lua` at own padding 0: our panel, anchored to the
+   outermost buttons of the repack, with `Grid.dividers` lines. The buttons
+   get `opts.framed`: no fill or edge of their own, hover as a 1 px gold
+   inner edge, and the glow placed around the icon (`Glow.place`).
+
+**Adding an art region:** one dot path under the bar's id in
+`Art.REGIONS` (`Core/Art.lua`), or a pool key in `Art.POOLS`. Names the
+client doesn't have are skipped; add a CHECKLIST line for the client check.
 
 **Secret values.** Every range, usable, mana, checked or autocast value from
 the client goes through `Util.plain(v)` (nil for a secret) before a branch;

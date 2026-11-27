@@ -8,13 +8,23 @@ local Common = {}
 
 local KEYS = { "shading", "hotkey", "macro", "count", "fontSize" }
 
-Common.defaults = { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10 }
+Common.defaults = { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10,
+  hideArt = true, ownPadding = true, padding = 2 }
 
-local function settings()
+-- tooltips: per-bar replacements { [key] = text }.
+local function settings(tooltips)
+  tooltips = tooltips or {}
+  local function tip(key, text) return tooltips[key] or text end
   return {
     { section = "Look", controls = {
       { key = "shading", type = "dropdown", label = "Button shading", values = { "Skin", "Bronze", "Raised", "Flat" },
         tooltip = "Inner shading of the buttons; Skin follows the skin's pick" },
+      { key = "hideArt", type = "checkbox", label = "Hide Blizzard art",
+        tooltip = tip("hideArt", "Hides the bar's end caps, background and dividers") },
+      { key = "ownPadding", type = "checkbox", label = "Own padding",
+        tooltip = tip("ownPadding", "Uses the padding below instead of Blizzard's") },
+      { key = "padding", type = "slider", label = "Padding", min = 0, max = 10, step = 1,
+        tooltip = tip("padding", "Space between buttons; 0 joins the bar into one frame") },
     } },
     { section = "Text", controls = {
       { key = "hotkey", type = "checkbox", label = "Show hotkey", tooltip = "The key bound to each button" },
@@ -30,6 +40,7 @@ end
 function Common.opts(id)
   local out = {}
   for _, k in ipairs(KEYS) do out[k] = ns.Options.get(id, k) end
+  out.framed = ns.Look.framed(ns.Options.get(id, "ownPadding") == true, ns.Options.get(id, "padding"))
   return out
 end
 
@@ -44,17 +55,72 @@ function Common.buttons(id)
   return list
 end
 
+local created = {} -- [id] = true once the bar's module is created, in order
+local createdOrder = {}
+local events
+
+-- Blizzard's art (Skin/Art.lua) and our padding on the bar
+-- (Core/Layout.lua): Blizzard's anchors back when own padding is off. Re-run after each Blizzard layout, a shown button,
+-- PLAYER_ENTERING_WORLD / EDIT_MODE_LAYOUTS_UPDATED and a skin change.
+function Common.layout(id)
+  local O = ns.Options
+  -- Blizzard makes the main bar's dividers on layout: hide them again.
+  if ns.Skin and ns.Skin.Art then ns.Skin.Art.apply(id, O.get(id, "hideArt") == true) end
+  local Layout = ns.Layout
+  if not (Layout and ns.Grid) then return end
+  local own, padding = O.get(id, "ownPadding") == true, O.get(id, "padding") or 0
+  if own then
+    local edge = ns.Look.edgeWidth(ns.Look.skin().border)
+    Layout.repack(id, ns.Grid.spacing(padding, edge))
+  else
+    Layout.reset(id)
+  end
+  -- after the repack (queued in that order): padding 0's one bar frame
+  if ns.Skin and ns.Skin.BarFrame then ns.Skin.BarFrame.apply(id, ns.Look.framed(own, padding)) end
+end
+
+function Common.layoutAll()
+  for _, id in ipairs(createdOrder) do Common.layout(id) end
+end
+
+-- UNVERIFIED (check in client): EDIT_MODE_LAYOUTS_UPDATED on Forever. The
+-- main bar's buttons only sit right after Blizzard's Edit Mode layout is in.
+local function ensureEvents()
+  if events then return end
+  events = CreateFrame("Frame")
+  for _, ev in ipairs({ "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED" }) do
+    pcall(events.RegisterEvent, events, ev)
+  end
+  events:SetScript("OnEvent", function() Common.layoutAll() end)
+end
+
+local function startLayout(id)
+  if not created[id] then
+    created[id] = true
+    createdOrder[#createdOrder + 1] = id
+    ensureEvents()
+    if ns.Layout then
+      ns.Layout.watch(id, function() Common.layout(id) end)
+      ns.Layout.onShowRepack(id, function() Common.layout(id) end)
+    end
+  end
+  Common.layout(id)
+end
+
 local function skinAll(spec)
   local opts = Common.opts(spec.id)
   for _, b in ipairs(Common.buttons(spec.id)) do ns.Skin.Button.skin(b, opts) end
 end
 
 -- Defines the module of bar `id`. `extra(spec)` runs after the buttons are
--- skinned on create (the pet bar's autocast badge).
-function Common.define(id, extra)
+-- skinned on create (the pet bar's autocast badge). overrides: { defaults =
+-- { [key] = value }, tooltips = { [key] = text } } for this bar.
+function Common.define(id, extra, overrides)
+  overrides = overrides or {}
   local bar = ns.Bars.get(id)
   local defaults = {}
   for k, v in pairs(Common.defaults) do defaults[k] = v end
+  for k, v in pairs(overrides.defaults or {}) do defaults[k] = v end
   return ns.Modules.define{
     id = id,
     label = bar.label,
@@ -62,14 +128,16 @@ function Common.define(id, extra)
     system = { index = bar.system },
     blizzard = { bar.frame },
     defaults = defaults,
-    settings = settings(),
+    settings = settings(overrides.tooltips),
     create = function(spec)
       skinAll(spec)
       spec.frame = rawget(_G, bar.frame) or true
       if extra then extra(spec) end
+      startLayout(id)
     end,
     apply = function(spec)
       skinAll(spec)
+      Common.layout(id)
     end,
   }
 end

@@ -18,7 +18,13 @@ In development. What works so far:
 - **Edit Mode.** Open Edit Mode and click a bar. Below Blizzard's own
   settings you find:
   - **Look**: Button shading (Skin, Bronze, Raised or Flat; Skin follows
-    the chosen skin).
+    the chosen skin). Hide Blizzard art (the bar's end caps, background and
+    dividers). Own padding and Padding (0-10): the buttons close up toward
+    the first one, which stays where Blizzard put it. At 0 the whole bar
+    becomes one frame with thin dividers between the icons. Turning Own
+    padding off brings Blizzard's spacing back. The Stance Bar starts with
+    Own padding off: it rearranges itself in combat, so its spacing would
+    only come back after the fight.
   - **Text**: show or hide the hotkey, the macro name and the count, and
     the font size.
   - **Settings**: opens the AnotherBars settings.

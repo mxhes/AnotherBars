@@ -63,9 +63,10 @@ h.test("relayout in combat queues the repack", function()
   cleanup()
 end)
 
-h.test("repack skips hidden buttons", function()
+h.test("repack skips hidden buttons without a position", function()
   local ns, _, _, buttons, cleanup = setup(false)
   buttons[3]._shown = false
+  buttons[3]._left = nil
   ns.Layout.repack("bar1", 0)
   h.eq(points(buttons[3]), {})
   h.eq(points(buttons[2]), { { "CENTER", buttons[2]._container, "CENTER", -2, 0 } })
@@ -172,5 +173,85 @@ h.test("no fields written on Blizzard frames", function()
   local after = { keys(bar) }
   for i = 1, 3 do after[#after + 1] = keys(buttons[i]) end
   h.eq(after, before)
+  cleanup()
+end)
+
+h.test("hidden buttons stay out of the grid and the edges", function()
+  -- "# of Icons" 2: Blizzard hides button 3 on a stale anchor far away
+  local ns, _, _, buttons, cleanup = setup(false)
+  buttons[3]._shown = false
+  buttons[3]._left = 900
+  ns.Layout.repack("bar1", 0)
+  h.eq(points(buttons[3]), {})
+  h.eq(ns.Layout.edges("bar1").right, buttons[2])
+  local cells = ns.Layout.cells("bar1")
+  h.eq(#cells, 2)
+  cleanup()
+end)
+
+h.test("reset leaves a button Blizzard re-anchored since our repack", function()
+  local ns, _, _, buttons, cleanup = setup(false)
+  ns.Layout.repack("bar1", 0)
+  local other = fakes.frame("Other")
+  buttons[2]._points = { { "TOPLEFT", other, "TOPLEFT", 7, 0 } }
+  buttons[2].calls = {}
+  ns.Layout.reset("bar1")
+  h.eq(points(buttons[2]), {})
+  cleanup()
+end)
+
+h.test("reset puts back Blizzard's anchors", function()
+  local ns, _, _, buttons, cleanup = setup(false)
+  ns.Layout.repack("bar1", 0)
+  move(buttons[2], -2, 0)
+  move(buttons[3], -4, 0)
+  ns.Layout.reset("bar1")
+  h.eq(points(buttons[1]), {})
+  local p2, p3 = points(buttons[2]), points(buttons[3])
+  h.eq(p2[#p2], { "CENTER", buttons[2]._container, "CENTER", 0, 0 })
+  h.eq(p3[#p3], { "CENTER", buttons[3]._container, "CENTER", 0, 0 })
+  -- a second reset has nothing left to put back
+  for i = 1, 3 do buttons[i].calls = {} end
+  ns.Layout.reset("bar1")
+  h.eq(points(buttons[2]), {})
+  cleanup()
+end)
+
+h.test("reset in combat replaces a queued repack", function()
+  local ns, client, _, buttons, cleanup = setup(false)
+  ns.Layout.repack("bar1", 0)
+  client.setCombat(true)
+  ns.Layout.repack("bar1", 5)
+  ns.Layout.reset("bar1")
+  h.eq(ns.Combat.pending(), 1)
+  client.setCombat(false)
+  client.fire("PLAYER_REGEN_ENABLED")
+  local p2 = points(buttons[2])
+  h.eq(p2[#p2], { "CENTER", buttons[2]._container, "CENTER", 0, 0 })
+  cleanup()
+end)
+
+h.test("cells and edges of the last repack", function()
+  local ns, _, _, buttons, cleanup = setup(false)
+  ns.Layout.repack("bar1", 0)
+  local cells, list = ns.Layout.cells("bar1")
+  h.eq(cells, { { 0, 0 }, { 1, 0 }, { 2, 0 } })
+  h.eq(list, buttons)
+  local e = ns.Layout.edges("bar1")
+  h.eq(e.left, buttons[1])
+  h.eq(e.right, buttons[3])
+  h.eq(e.top == buttons[1] or e.top == buttons[2] or e.top == buttons[3], true)
+  h.eq(e.bottom ~= nil, true)
+  h.eq(ns.Layout.edges("bar2"), nil)
+  cleanup()
+end)
+
+h.test("onShowRepack hooks each button's OnShow once", function()
+  local ns, _, _, buttons, cleanup = setup(false)
+  local n = 0
+  ns.Layout.onShowRepack("bar1", function() n = n + 1 end)
+  ns.Layout.onShowRepack("bar1", function() n = n + 100 end)
+  buttons[2]._scripts.OnShow(buttons[2])
+  h.eq(n, 1)
   cleanup()
 end)
