@@ -44,6 +44,7 @@ end
 -- State flags -> our overlays.
 local function paintEdges(st)
   local border = st.border
+  if st.framed then return end -- padding 0: the bar frame draws the border
   local edges = ns.Look.edges(border, st.hover)
   if border == "round" then
     local c = st.hover and T().colors.goldLine or T().colors.panelBorder
@@ -57,6 +58,7 @@ local function showState(st)
   D().showAll(st.active, st.checked)
   D().showAll(st.activeGlow, st.checked)
   if st.hover then st.hoverFill:Show() else st.hoverFill:Hide() end
+  D().showAll(st.hoverEdge, st.framed and st.hover)
   if st.pressed then st.pressedFill:Show() else st.pressedFill:Hide() end
   if st.isEmpty then st.empty:Show() else st.empty:Hide() end
   D().showAll(st.emptyShadow, st.isEmpty)
@@ -183,6 +185,7 @@ local function build(b)
   st.activeGlow = D().strips(front, "ARTWORK", 2)
   st.pressedFill = D().tile(front, "ARTWORK", 3)
   st.hoverFill = D().tile(front, "ARTWORK", 4)
+  st.hoverEdge = D().rect(front, "OVERLAY", 2) -- padding 0: hover's inner gold edge
   st.glow = ns.Skin.Glow.attach(b)
   return st
 end
@@ -224,6 +227,8 @@ local function layout(b, st, opts)
   local border = skin.border
   local e = ns.Look.edgeWidth(border)
   st.border = border
+  local framed = opts.framed == true
+  st.framed = framed
   local level = (b.GetFrameLevel and b:GetFrameLevel()) or 1
   st.back:SetFrameLevel(math.max(0, level - 1))
   st.front:SetFrameLevel(level + 2)
@@ -235,7 +240,10 @@ local function layout(b, st, opts)
 
   -- back: the fill, and for Classic the round tooltip edge
   local panel = Th.colors.panelTint
-  if border == "round" then
+  if framed then
+    st.back:SetBackdrop(nil)
+    st.fill:Hide()
+  elseif border == "round" then
     local inset = 2
     st.back:SetBackdrop({ bgFile = Th.textures.parchment, edgeFile = Th.textures.frameBorder, tile = true,
       tileSize = Th.sizes.backdropTile, edgeSize = B.roundEdgeSize,
@@ -250,7 +258,7 @@ local function layout(b, st, opts)
   end
 
   -- edge lines (not for round)
-  local rects = border == "round" and {} or Th.edgeRects(border)
+  local rects = (border == "round" or framed) and {} or Th.edgeRects(border)
   for i, r in ipairs(rects) do
     if not st.rects[i] then st.rects[i] = Dr.rect(st.front, "BORDER") end
     Dr.placeRect(st.rects[i], st.front, r.inset, 1)
@@ -306,6 +314,9 @@ local function layout(b, st, opts)
   Dr.placeRect(st.active, st.front, e, B.activeEdge)
   Dr.tintAll(st.active, Th.colors.gold)
   Dr.placeStrips(st.activeGlow, st.front, e + B.activeEdge, B.activeGlow, Th.colors.gold, B.activeGlowAlpha, true)
+  Dr.placeRect(st.hoverEdge, st.front, e, 1)
+  Dr.tintAll(st.hoverEdge, Th.colors.goldLine)
+  ns.Skin.Glow.place(st.glow, framed and e or 0)
   Dr.inset(st.hoverFill, st.front, e)
   Dr.tint(st.hoverFill, B.hover)
   Dr.inset(st.pressedFill, st.front, e)

@@ -67,7 +67,8 @@ h.test("create skins each existing button with the bar's opts", function()
   h.eq(#rec.skinned, 2)
   h.eq(rec.skinned[1][1], b1)
   h.eq(rec.skinned[2][1], b3)
-  h.eq(rec.skinned[1][2], { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10 })
+  h.eq(rec.skinned[1][2], { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10,
+    framed = false })
   client.restore()
 end)
 
@@ -272,4 +273,13 @@ h.test("the bar frame shows at own padding 0 only", function()
   h.eq(got, { { "bar1", false }, { "bar1", true }, { "bar1", false } })
   h.eq(rec.order, "rfrf" .. "f")
   client.restore()
+end)
+
+h.test("opts say framed at own padding 0 only", function()
+  local ns = load()
+  h.eq(ns.BarModules.Common.opts("bar1").framed, false)
+  ns.DB.profile().modules.bar1 = { padding = 0 }
+  h.eq(ns.BarModules.Common.opts("bar1").framed, true)
+  ns.DB.profile().modules.bar1 = { padding = 0, ownPadding = false }
+  h.eq(ns.BarModules.Common.opts("bar1").framed, false)
 end)

@@ -285,3 +285,88 @@ h.test("a secret checked value keeps the edge", function()
   h.eq(shownCount(st.active), #st.active)
   cleanup()
 end)
+
+-- Padding 0 (APPROVED.md §6): the bar frame draws panel and border, the
+-- button keeps its icon size and draws its states inside the icon.
+local FRAMED = { shading = "Skin", hotkey = true, count = true, macro = true, fontSize = 10, framed = true }
+
+local function firstPoint(t, name)
+  for _, p in ipairs(t._points or {}) do if p[1] == name then return { p[4], p[5] } end end
+end
+
+h.test("framed hides fill, backdrop and edges", function()
+  local ns, _, cleanup = setup()
+  ns.DB.profile().skin = "slate"
+  local b = button("ActionButton1")
+  ns.Skin.Button.skin(b, FRAMED)
+  local st = ns.Skin.Button.state(b)
+  h.eq(st.fill._shown, false)
+  h.eq(st.back._backdrop, nil)
+  local rects = 0
+  for _, r in ipairs(st.rects) do if r[1]._shown then rects = rects + 1 end end
+  h.eq(rects, 0)
+  h.eq(firstPoint(b.icon, "TOPLEFT"), { 2, -2 })
+  cleanup()
+end)
+
+h.test("framed hover draws the inner gold edge", function()
+  local ns, _, cleanup = setup()
+  local b = button("ActionButton1")
+  ns.Skin.Button.skin(b, FRAMED)
+  local st = ns.Skin.Button.state(b)
+  h.eq(shownCount(st.hoverEdge), 0)
+  b._scripts.OnEnter(b)
+  h.eq(shownCount(st.hoverEdge), 4)
+  b._scripts.OnLeave(b)
+  h.eq(shownCount(st.hoverEdge), 0)
+  cleanup()
+end)
+
+h.test("not framed: hover never shows the inner edge", function()
+  local ns, _, cleanup = setup()
+  local b = button("ActionButton1")
+  ns.Skin.Button.skin(b, OPTS)
+  b._scripts.OnEnter(b)
+  h.eq(shownCount(ns.Skin.Button.state(b).hoverEdge), 0)
+  cleanup()
+end)
+
+h.test("framed overlays stay inside the icon", function()
+  local ns, _, cleanup = setup()
+  ns.DB.profile().skin = "slate"
+  local b = button("ActionButton1")
+  ns.Skin.Button.skin(b, FRAMED)
+  local st = ns.Skin.Button.state(b)
+  for _, t in ipairs({ st.hoverFill, st.pressedFill, st.empty }) do h.eq(firstPoint(t, "TOPLEFT"), { 2, -2 }) end
+  cleanup()
+end)
+
+h.test("framed glow sits around the icon", function()
+  local ns, _, cleanup = setup()
+  ns.DB.profile().skin = "slate"
+  local g = ns.Theme.button.glow
+  local pad = g.out + g.outer
+  local b = button("ActionButton1")
+  ns.Skin.Button.skin(b, FRAMED)
+  local frame = ns.Skin.Button.state(b).glow.frame
+  h.eq(firstPoint(frame, "TOPLEFT"), { -pad + 2, pad - 2 })
+  ns.Skin.Button.skin(b, OPTS)
+  h.eq(firstPoint(frame, "TOPLEFT"), { -pad, pad })
+  cleanup()
+end)
+
+h.test("back to padding 2 restores the per-button look", function()
+  local ns, _, cleanup = setup()
+  ns.DB.profile().skin = "slate"
+  local b = button("ActionButton1")
+  ns.Skin.Button.skin(b, FRAMED)
+  ns.Skin.Button.skin(b, OPTS)
+  local st = ns.Skin.Button.state(b)
+  h.eq(st.fill._shown, true)
+  local rects = 0
+  for _, r in ipairs(st.rects) do if r[1]._shown then rects = rects + 1 end end
+  h.eq(rects, 2)
+  b._scripts.OnEnter(b)
+  h.eq(shownCount(st.hoverEdge), 0)
+  cleanup()
+end)

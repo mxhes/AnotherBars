@@ -40,6 +40,7 @@ end
 function Common.opts(id)
   local out = {}
   for _, k in ipairs(KEYS) do out[k] = ns.Options.get(id, k) end
+  out.framed = ns.Look.framed(ns.Options.get(id, "ownPadding") == true, ns.Options.get(id, "padding"))
   return out
 end
 

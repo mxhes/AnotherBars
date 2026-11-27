@@ -13,9 +13,6 @@ function Glow.attach(button, level)
   local T, D = ns.Theme, ns.Skin.Draw
   local g = T.button.glow
   local frame = CreateFrame("Frame", nil, button)
-  local pad = g.out + g.outer
-  frame:SetPoint("TOPLEFT", button, "TOPLEFT", -pad, pad)
-  frame:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", pad, -pad)
   frame:SetFrameLevel(level or 1)
   local c = T.colors.goldLine
   local outer = D.strips(frame, "BACKGROUND")
@@ -39,7 +36,20 @@ function Glow.attach(button, level)
   scale:SetOrigin("CENTER", 0, 0)
   scale:SetDuration(g.period / 2)
   frame:Hide()
-  return setmetatable({ frame = frame, group = group, button = button }, Glow)
+  local glow = setmetatable({ frame = frame, group = group, button = button }, Glow)
+  Glow.place(glow, 0)
+  return glow
+end
+
+-- Places the glow around the button shrunk by `inset` px on every side (at
+-- padding 0 the icon's edge, so the glow sits 5 px out from the icon).
+function Glow.place(glow, inset)
+  local g = ns.Theme.button.glow
+  local pad = g.out + g.outer - (inset or 0)
+  local frame, button = glow.frame, glow.button
+  frame:ClearAllPoints()
+  frame:SetPoint("TOPLEFT", button, "TOPLEFT", -pad, pad)
+  frame:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", pad, -pad)
 end
 
 function Glow:show()
