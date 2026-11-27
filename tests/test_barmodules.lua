@@ -4,7 +4,7 @@ local fakes = dofile("tests/fakes.lua")
 local FILES = { "Core/Util.lua", "Core/Theme.lua", "Core/DB.lua", "Core/Modules.lua", "Core/Combat.lua",
   "Core/Options.lua", "Core/Bars.lua", "Core/Grid.lua", "Core/Layout.lua", "Core/Look.lua",
   "Skin/Blizzard.lua", "Skin/Draw.lua",
-  "Skin/Glow.lua", "Skin/Button.lua", "Skin/Autocast.lua", "Core/Art.lua", "Skin/Art.lua", "Skin/BarFrame.lua",
+  "Skin/Glow.lua", "Skin/Button.lua", "Skin/Autocast.lua", "Core/Art.lua", "Skin/Art.lua", "Skin/BarFrame.lua", "Core/Fade.lua", "Skin/Fade.lua",
   "Bars/Common.lua", "Bars/ActionBar.lua", "Bars/Stance.lua", "Bars/Pet.lua" }
 
 -- Loads the bar modules with Button.skin / Autocast faked; returns ns and
@@ -297,4 +297,16 @@ h.test("Fading section after Look and Text", function()
     h.eq({ slider.key, slider.min, slider.max, slider.step }, { "fadeAlpha", 0, 100, 5 })
     h.eq(spec.settings[3].controls[2].key, "fadeMouseover")
   end
+end)
+
+h.test("create and a setting apply the bar's fade", function()
+  local ns = load()
+  local client = fakes.client()
+  stubLayout(ns)
+  local got = {}
+  ns.Skin.Fade.apply = function(id, opts) got[#got + 1] = { id, opts } end
+  ns.Modules.get("bar2").create(ns.Modules.get("bar2"))
+  ns.Options.set("bar2", "fadeAlpha", 50)
+  h.eq(got, { { "bar2", { fadeAlpha = 100, fadeMouseover = true } }, { "bar2", { fadeAlpha = 50, fadeMouseover = true } } })
+  client.restore()
 end)

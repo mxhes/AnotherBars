@@ -1,0 +1,91 @@
+local ADDON, ns = ...
+
+-- Fading (Core/Fade.lua): one driver frame of ours per bar animates the
+-- bar frame's alpha. Only SetAlpha on the bar frame (allowed in combat,
+-- Plan 1 spike); never Blizzard's UIFrameFade helpers (they write fadeInfo
+-- onto the frame). A bar at 100% is never touched: no polling, no SetAlpha.
+ns.Skin = ns.Skin or {}
+local SkinFade = {}
+
+local POLL = 0.1 -- seconds between mouse checks
+
+local shared = { combat = false, editMode = false }
+local drivers = {} -- [barId] = { frame, bar, opts, mouse, wait, touched }
+local events
+
+function SkinFade.state(barId)
+  return drivers[barId]
+end
+
+function SkinFade.setCombat(on)
+  shared.combat = on and true or false
+end
+
+function SkinFade.setEditMode(on)
+  shared.editMode = on and true or false
+end
+
+local function ensureEvents()
+  if events then return end
+  events = CreateFrame("Frame")
+  events:RegisterEvent("PLAYER_REGEN_DISABLED")
+  events:RegisterEvent("PLAYER_REGEN_ENABLED")
+  events:SetScript("OnEvent", function(_, event) SkinFade.setCombat(event == "PLAYER_REGEN_DISABLED") end)
+  SkinFade.setCombat(InCombatLockdown and InCombatLockdown())
+end
+
+-- The mouse over the bar frame (gaps included) or one of its shown buttons.
+-- UNVERIFIED (check in client): IsMouseOver on the bar frame covers the
+-- area between its buttons.
+local function mouseOver(barId, frame)
+  if frame.IsMouseOver and frame:IsMouseOver() then return true end
+  local bar = ns.Bars.get(barId)
+  for i = 1, bar.count do
+    local b = rawget(_G, bar.button .. i)
+    if b and b:IsShown() and b.IsMouseOver and b:IsMouseOver() then return true end
+  end
+  return false
+end
+
+local function onUpdate(d, elapsed)
+  d.wait = d.wait - elapsed
+  if d.wait <= 0 then
+    d.wait = POLL
+    d.mouse = mouseOver(d.id, d.bar)
+  end
+  local target = ns.Fade.target(d.opts, { combat = shared.combat, editMode = shared.editMode, mouse = d.mouse })
+  local current = d.bar:GetAlpha()
+  local nextAlpha = ns.Fade.step(current, target, elapsed)
+  if nextAlpha ~= current then
+    d.bar:SetAlpha(nextAlpha)
+    d.touched = true
+  end
+end
+
+-- opts = { fadeAlpha, fadeMouseover }. Starts or stops the bar's driver.
+function SkinFade.apply(barId, opts)
+  local bar = ns.Bars.get(barId)
+  local frame = bar and rawget(_G, bar.frame)
+  if type(frame) ~= "table" then return end
+  ensureEvents()
+  local d = drivers[barId]
+  if not d then
+    d = { id = barId, frame = CreateFrame("Frame"), wait = 0, mouse = false }
+    d.frame:Hide()
+    d.frame:SetScript("OnUpdate", function(_, elapsed) onUpdate(d, elapsed) end)
+    drivers[barId] = d
+  end
+  d.bar, d.opts = frame, opts
+  if ns.Fade.active(opts.fadeAlpha) then
+    d.wait = 0
+    d.frame:Show()
+  else
+    d.frame:Hide()
+    if d.touched then
+      d.touched = false
+      frame:SetAlpha(1)
+    end
+  end
+end
+
+ns.Skin.Fade = SkinFade

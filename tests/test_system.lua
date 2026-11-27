@@ -104,3 +104,24 @@ h.test("slash without a subcommand prints the version", function()
   h.eq(type(said), "string")
   h.eq(said:find("version", 1, true) ~= nil, true)
 end)
+
+h.test("Edit Mode enter / exit drive the fade's Edit Mode state", function()
+  local lem = fakeLem()
+  local cbs = {}
+  function lem:RegisterCallback(event, fn) cbs[event] = (cbs[event] or 0) + 1; lem[event .. "Fn"] = fn end
+  local ns, g = load(lem)
+  local got = {}
+  ns.Skin = { Fade = { setEditMode = function(on) got[#got + 1] = on end } }
+  attach(ns, g)
+  attach(ns, g)
+  h.eq({ cbs.enter, cbs.exit }, { 1, 1 })
+  lem.enterFn()
+  lem.exitFn()
+  h.eq(got, { true, false })
+end)
+
+h.test("no LibEditMode: attach does nothing, no error", function()
+  local ns, g = load(nil)
+  ns.Skin = { Fade = { setEditMode = function() error("not expected") end } }
+  attach(ns, g)
+end)

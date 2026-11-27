@@ -113,6 +113,16 @@ local function startLayout(id)
   Common.layout(id)
 end
 
+-- The bar's fade opts (Skin/Fade.lua).
+function Common.fadeOpts(id)
+  return { fadeAlpha = ns.Options.get(id, "fadeAlpha"), fadeMouseover = ns.Options.get(id, "fadeMouseover") }
+end
+
+-- Alpha is allowed in combat: no Combat.after.
+local function fade(id)
+  if ns.Skin and ns.Skin.Fade then ns.Skin.Fade.apply(id, Common.fadeOpts(id)) end
+end
+
 local function skinAll(spec)
   local opts = Common.opts(spec.id)
   for _, b in ipairs(Common.buttons(spec.id)) do ns.Skin.Button.skin(b, opts) end
@@ -140,10 +150,12 @@ function Common.define(id, extra, overrides)
       spec.frame = rawget(_G, bar.frame) or true
       if extra then extra(spec) end
       startLayout(id)
+      fade(id)
     end,
     apply = function(spec)
       skinAll(spec)
       Common.layout(id)
+      fade(id)
     end,
   }
 end
