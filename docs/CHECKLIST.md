@@ -4,6 +4,25 @@ What still has to be confirmed in the client, and the release steps.
 
 ## Open checks
 
+### Plan 5 fading
+
+- [ ] Opacity out of combat 40% on a bar: it fades out of combat and is full
+  the moment combat starts.
+- [ ] Mouse-over shows it fully, also when moving across the gaps between
+  buttons and at padding 0; with Full on mouse-over off it stays faded.
+- [ ] Edit Mode open: every faded bar is full; closed: faded again (LibEditMode's
+  `enter` / `exit` callbacks fire on Forever).
+- [ ] Back to 100: the bar is full and stays full.
+- [ ] Buttons on a faded bar still work (click and key).
+- [ ] The proc glow, our button art and the padding-0 frame fade with the bar.
+- [ ] No Lua errors; no `AnotherBars` lines in the taint log after a fight
+  with a faded bar.
+
+Results:
+
+- (not run yet)
+
+
 ### Plan 4 padding and art
 
 - [x] The art names resolve: `/dump MainMenuBar.EndCaps ~= nil`,

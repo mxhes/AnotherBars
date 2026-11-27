@@ -27,6 +27,9 @@ In development. What works so far:
     only come back after the fight.
   - **Text**: show or hide the hotkey, the macro name and the count, and
     the font size.
+  - **Fading**: Opacity out of combat (100 never fades) and Full on
+    mouse-over. A bar always shows fully in combat and while Edit Mode is
+    open, and fades back smoothly afterwards.
   - **Settings**: opens the AnotherBars settings.
 - **Settings** (`/abars`, or the Settings button in Edit Mode): the skin
   for all bars (Classic, Forge, Slate) and which bars wear the
