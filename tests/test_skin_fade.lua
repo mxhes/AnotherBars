@@ -141,3 +141,34 @@ h.test("a missing bar is skipped", function()
   F.apply("nope", { fadeAlpha = 40, fadeMouseover = true })
   cleanup()
 end)
+
+-- The client keeps alpha as a 32-bit float: GetAlpha never gives back the
+-- exact double we set.
+local function floatAlpha(bar)
+  local set = {}
+  bar.SetAlpha = function(self, a) set[#set + 1] = a; self._alpha = a end
+  bar.GetAlpha = function(self) return (self._alpha or 1) + 0.0000000059 end
+  return set
+end
+
+h.test("a settled fade stops calling SetAlpha", function()
+  local _, F, bar, _, run, _, cleanup = setup()
+  local set = floatAlpha(bar)
+  F.apply("bar2", { fadeAlpha = 40, fadeMouseover = true })
+  run(2)
+  local n = #set
+  run(1)
+  h.eq(#set, n)
+  h.eq(math.abs(bar._alpha - 0.4) < 1e-9, true)
+  cleanup()
+end)
+
+h.test("an outside alpha change is not fought once settled", function()
+  local _, F, bar, _, run, _, cleanup = setup()
+  F.apply("bar2", { fadeAlpha = 40, fadeMouseover = true })
+  run(2)
+  bar:SetAlpha(0) -- e.g. Blizzard hiding the bar by alpha
+  run(1)
+  h.eq(bar._alpha, 0)
+  cleanup()
+end)

@@ -143,8 +143,10 @@ create and on a setting change, outside `Combat.after` (alpha on a bar frame
 is allowed in combat, Plan 1 spike). While the bar's opacity is below 100 a
 driver frame of ours runs `OnUpdate`: every 0.1 s it reads `IsMouseOver` of
 the bar frame (gaps included) and its shown buttons, then moves the bar's
-alpha toward `Fade.target` with `Fade.step` (0.2 s up, 0.5 s down) and calls
-`SetAlpha` only on a change. Combat comes from `PLAYER_REGEN_DISABLED` /
+alpha toward `Fade.target` with `Fade.step` (0.2 s up, 0.5 s down). It steps
+its own copy of the alpha, never `GetAlpha` (the client stores a 32-bit float
+that never reads back equal, and an outside change must not be fought), and
+calls `SetAlpha` only when that copy changes: a settled bar is not written. Combat comes from `PLAYER_REGEN_DISABLED` /
 `_ENABLED`, Edit Mode from LibEditMode's `enter` / `exit` callbacks
 (`EditMode/System.lua`). Back at 100 the driver sets alpha 1 once (if it
 changed it) and stops. Never `UIFrameFadeIn` / `UIFrameFadeOut`: they write

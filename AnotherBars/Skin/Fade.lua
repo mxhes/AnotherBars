@@ -10,7 +10,7 @@ local SkinFade = {}
 local POLL = 0.1 -- seconds between mouse checks
 
 local shared = { combat = false, editMode = false }
-local drivers = {} -- [barId] = { frame, bar, opts, mouse, wait, touched }
+local drivers = {} -- [barId] = { frame, bar, opts, mouse, wait, alpha (ours), touched }
 local events
 
 function SkinFade.state(barId)
@@ -54,9 +54,12 @@ local function onUpdate(d, elapsed)
     d.mouse = mouseOver(d.id, d.bar)
   end
   local target = ns.Fade.target(d.opts, { combat = shared.combat, editMode = shared.editMode, mouse = d.mouse })
-  local current = d.bar:GetAlpha()
-  local nextAlpha = ns.Fade.step(current, target, elapsed)
-  if nextAlpha ~= current then
+  -- Our own value, never GetAlpha: the client keeps alpha as a 32-bit
+  -- float (it would never read back equal), and an outside change must not
+  -- be fought. Once at the target nothing is written any more.
+  local nextAlpha = ns.Fade.step(d.alpha, target, elapsed)
+  if nextAlpha ~= d.alpha then
+    d.alpha = nextAlpha
     d.bar:SetAlpha(nextAlpha)
     d.touched = true
   end
@@ -78,9 +81,11 @@ function SkinFade.apply(barId, opts)
   d.bar, d.opts = frame, opts
   if ns.Fade.active(opts.fadeAlpha) then
     d.wait = 0
+    if d.alpha == nil then d.alpha = frame:GetAlpha() end
     d.frame:Show()
   else
     d.frame:Hide()
+    d.alpha = nil
     if d.touched then
       d.touched = false
       frame:SetAlpha(1)
