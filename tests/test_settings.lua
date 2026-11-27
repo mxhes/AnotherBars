@@ -80,3 +80,11 @@ h.test("each bar panel gets a Settings button", function()
   }, function() ns.EditMode.System.attachAll() end)
   h.eq(calls, { { 0, "Settings", 1, "function" }, { 0, "Settings", 2, "function" } })
 end)
+
+h.test("a skin change re-runs the bars' layout", function()
+  local ns = load()
+  local n = 0
+  ns.BarModules.Common.layoutAll = function() n = n + 1 end
+  ns.UI.Settings.setSkin("slate")
+  h.eq(n, 1)
+end)

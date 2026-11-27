@@ -2,7 +2,8 @@ local h = ...
 local fakes = dofile("tests/fakes.lua")
 
 local FILES = { "Core/Util.lua", "Core/Theme.lua", "Core/DB.lua", "Core/Modules.lua", "Core/Combat.lua",
-  "Core/Options.lua", "Core/Bars.lua", "Core/Look.lua", "Skin/Blizzard.lua", "Skin/Draw.lua",
+  "Core/Options.lua", "Core/Bars.lua", "Core/Grid.lua", "Core/Layout.lua", "Core/Look.lua",
+  "Skin/Blizzard.lua", "Skin/Draw.lua",
   "Skin/Glow.lua", "Skin/Button.lua", "Skin/Autocast.lua",
   "Bars/Common.lua", "Bars/ActionBar.lua", "Bars/Stance.lua", "Bars/Pet.lua" }
 
@@ -55,6 +56,7 @@ end)
 
 h.test("create skins each existing button with the bar's opts", function()
   local ns, rec = load()
+  local client = fakes.client()
   local b1, b3 = fakes.frame("MultiBarBottomLeftButton1"), fakes.frame("MultiBarBottomLeftButton3")
   fakes.withGlobals({ MultiBarBottomLeftButton1 = b1, MultiBarBottomLeftButton3 = b3,
     MultiBarBottomLeft = fakes.frame("MultiBarBottomLeft") }, function()
@@ -66,6 +68,7 @@ h.test("create skins each existing button with the bar's opts", function()
   h.eq(rec.skinned[1][1], b1)
   h.eq(rec.skinned[2][1], b3)
   h.eq(rec.skinned[1][2], { shading = "Skin", hotkey = true, macro = true, count = true, fontSize = 10 })
+  client.restore()
 end)
 
 h.test("a setting re-skins only its bar", function()
@@ -82,12 +85,14 @@ end)
 
 h.test("pet create adds a badge to each pet button", function()
   local ns, rec = load()
+  local client = fakes.client()
   local p1, p2 = fakes.frame("PetActionButton1"), fakes.frame("PetActionButton2")
   fakes.withGlobals({ PetActionButton1 = p1, PetActionButton2 = p2 }, function()
     local spec = ns.Modules.get("pet")
     spec.create(spec)
   end)
   h.eq(rec.badges, { p1, p2 })
+  client.restore()
 end)
 
 h.test("Core.init creates enabled bars only", function()
@@ -157,4 +162,86 @@ h.test("every label fits in 24 characters", function()
       for _, c in ipairs(s.controls) do h.eq(#c.label <= 24, true, c.label) end
     end
   end
+end)
+
+-- Records Layout calls instead of moving frames.
+local function stubLayout(ns)
+  local rec = { repack = {}, reset = {}, watch = {}, show = {} }
+  ns.Layout.repack = function(id, spacing) rec.repack[#rec.repack + 1] = { id, spacing } end
+  ns.Layout.reset = function(id) rec.reset[#rec.reset + 1] = id end
+  ns.Layout.watch = function(id, fn) rec.watch[id] = fn end
+  ns.Layout.onShowRepack = function(id, fn) rec.show[id] = fn end
+  return rec
+end
+
+h.test("create repacks with the bar's padding", function()
+  local ns = load()
+  local client = fakes.client()
+  local rec = stubLayout(ns)
+  local spec = ns.Modules.get("bar2")
+  spec.create(spec)
+  h.eq(rec.repack, { { "bar2", 2 } })
+  client.restore()
+end)
+
+h.test("padding 0 uses the edge step", function()
+  local ns = load()
+  local client = fakes.client()
+  local rec = stubLayout(ns)
+  ns.DB.profile().skin = "slate"
+  ns.Options.set("bar2", "padding", 0)
+  -- Slate edge 2: 36 px buttons step 36 - 4 + 1 = 33, a gap of -3
+  h.eq(rec.repack[#rec.repack], { "bar2", -3 })
+  client.restore()
+end)
+
+h.test("own padding off resets the bar", function()
+  local ns = load()
+  local client = fakes.client()
+  local rec = stubLayout(ns)
+  ns.Options.set("bar1", "ownPadding", false)
+  h.eq(rec.reset, { "bar1" })
+  h.eq(rec.repack, {})
+  client.restore()
+end)
+
+h.test("the stance bar starts at Blizzard's padding", function()
+  local ns = load()
+  local client = fakes.client()
+  local rec = stubLayout(ns)
+  fakes.withGlobals({ StanceBar = { UpdateState = function() end } }, function()
+    local spec = ns.Modules.get("stance")
+    spec.create(spec)
+  end)
+  h.eq(rec.repack, {})
+  h.eq(rec.reset, { "stance" })
+  client.restore()
+end)
+
+h.test("Blizzard's layout, a shown button and the layout events re-run it", function()
+  local ns = load()
+  local client = fakes.client()
+  local rec = stubLayout(ns)
+  local spec = ns.Modules.get("bar2")
+  spec.create(spec)
+  rec.watch.bar2("bar2", false)
+  rec.show.bar2()
+  h.eq(#rec.repack, 3)
+  client.fire("EDIT_MODE_LAYOUTS_UPDATED")
+  client.fire("PLAYER_ENTERING_WORLD")
+  -- created bars only: bar2 twice more
+  h.eq(#rec.repack, 5)
+  for _, r in ipairs(rec.repack) do h.eq(r[1], "bar2") end
+  client.restore()
+end)
+
+h.test("a skin change re-runs every created bar's layout", function()
+  local ns = load()
+  local client = fakes.client()
+  local rec = stubLayout(ns)
+  ns.Modules.get("bar2").create(ns.Modules.get("bar2"))
+  rec.repack = {}
+  ns.BarModules.Common.layoutAll()
+  h.eq(rec.repack, { { "bar2", 2 } })
+  client.restore()
 end)

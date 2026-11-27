@@ -54,6 +54,53 @@ function Common.buttons(id)
   return list
 end
 
+local created = {} -- [id] = true once the bar's module is created, in order
+local createdOrder = {}
+local events
+
+-- Our padding on the bar (Core/Layout.lua): Blizzard's anchors back when
+-- own padding is off. Re-run after each Blizzard layout, a shown button,
+-- PLAYER_ENTERING_WORLD / EDIT_MODE_LAYOUTS_UPDATED and a skin change.
+function Common.layout(id)
+  local Layout = ns.Layout
+  if not (Layout and ns.Grid) then return end
+  local O = ns.Options
+  if O.get(id, "ownPadding") == true then
+    local edge = ns.Look.edgeWidth(ns.Look.skin().border)
+    Layout.repack(id, ns.Grid.spacing(O.get(id, "padding") or 0, edge))
+  else
+    Layout.reset(id)
+  end
+end
+
+function Common.layoutAll()
+  for _, id in ipairs(createdOrder) do Common.layout(id) end
+end
+
+-- UNVERIFIED (check in client): EDIT_MODE_LAYOUTS_UPDATED on Forever. The
+-- main bar's buttons only sit right after Blizzard's Edit Mode layout is in.
+local function ensureEvents()
+  if events then return end
+  events = CreateFrame("Frame")
+  for _, ev in ipairs({ "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED" }) do
+    pcall(events.RegisterEvent, events, ev)
+  end
+  events:SetScript("OnEvent", function() Common.layoutAll() end)
+end
+
+local function startLayout(id)
+  if not created[id] then
+    created[id] = true
+    createdOrder[#createdOrder + 1] = id
+    ensureEvents()
+    if ns.Layout then
+      ns.Layout.watch(id, function() Common.layout(id) end)
+      ns.Layout.onShowRepack(id, function() Common.layout(id) end)
+    end
+  end
+  Common.layout(id)
+end
+
 local function skinAll(spec)
   local opts = Common.opts(spec.id)
   for _, b in ipairs(Common.buttons(spec.id)) do ns.Skin.Button.skin(b, opts) end
@@ -80,9 +127,11 @@ function Common.define(id, extra, overrides)
       skinAll(spec)
       spec.frame = rawget(_G, bar.frame) or true
       if extra then extra(spec) end
+      startLayout(id)
     end,
     apply = function(spec)
       skinAll(spec)
+      Common.layout(id)
     end,
   }
 end

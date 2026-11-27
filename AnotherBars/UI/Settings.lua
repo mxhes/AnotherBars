@@ -27,6 +27,8 @@ function Settings.setSkin(id)
     ns.Skin.Button.relayoutAll()
     ns.Skin.Autocast.relayoutAll()
   end)
+  -- the edge width sets the padding-0 step
+  if ns.BarModules and ns.BarModules.Common then ns.BarModules.Common.layoutAll() end
   return true
 end
 
