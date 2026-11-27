@@ -149,7 +149,9 @@ that never reads back equal, and an outside change must not be fought), and
 calls `SetAlpha` only when that copy changes: a settled bar is not written. Combat comes from `PLAYER_REGEN_DISABLED` /
 `_ENABLED`, Edit Mode from LibEditMode's `enter` / `exit` callbacks
 (`EditMode/System.lua`). Back at 100 the driver sets alpha 1 once (if it
-changed it) and stops. Never `UIFrameFadeIn` / `UIFrameFadeOut`: they write
+changed it) and stops. `/abars fade` prints each driver's state
+(`Skin.Fade.report`: combat, Edit Mode, our alpha, target, mouse, the
+frame's alpha) for client checks. Never `UIFrameFadeIn` / `UIFrameFadeOut`: they write
 `fadeInfo` onto the frame (taint). Our overlays, glow and bar frame are
 children of the bar or its buttons and fade with it.
 

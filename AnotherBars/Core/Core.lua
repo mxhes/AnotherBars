@@ -25,6 +25,12 @@ end
 
 Core.commands.version = function() ns.Util.say("version " .. version()) end
 
+-- /abars fade: what each fading bar's driver sees (for client checks).
+Core.commands.fade = function()
+  if not (ns.Skin and ns.Skin.Fade) then return end
+  for _, line in ipairs(ns.Skin.Fade.report()) do ns.Util.say(line) end
+end
+
 function Core.init()
   AnotherBarsDB, AnotherBarsCharDB = ns.DB.init(AnotherBarsDB, AnotherBarsCharDB)
   ns.db, ns.chardb = AnotherBarsDB, AnotherBarsCharDB

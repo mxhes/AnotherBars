@@ -93,4 +93,28 @@ function SkinFade.apply(barId, opts)
   end
 end
 
+local function fmt(v)
+  if type(v) ~= "number" then return tostring(v) end
+  return string.format("%.2f", v)
+end
+
+-- Lines for /abars fade: the shared state, then each bar's driver.
+function SkinFade.report()
+  local lines = { "combat=" .. tostring(shared.combat) .. " editMode=" .. tostring(shared.editMode) }
+  local ids = {}
+  for id in pairs(drivers) do ids[#ids + 1] = id end
+  table.sort(ids)
+  for _, id in ipairs(ids) do
+    local d = drivers[id]
+    local on = d.frame:IsShown()
+    local target = on and ns.Fade.target(d.opts, { combat = shared.combat, editMode = shared.editMode, mouse = d.mouse })
+    local barMouse = d.bar.IsMouseOver and d.bar:IsMouseOver() or false
+    lines[#lines + 1] = string.format("%s: %s alpha=%s target=%s mouse=%s barMouse=%s frameAlpha=%s",
+      id, on and "on" or "off", fmt(d.alpha), fmt(target or nil), tostring(d.mouse), tostring(barMouse),
+      fmt(ns.Util.plain(d.bar:GetAlpha())))
+  end
+  if #ids == 0 then lines[#lines + 1] = "no bar fades" end
+  return lines
+end
+
 ns.Skin.Fade = SkinFade
