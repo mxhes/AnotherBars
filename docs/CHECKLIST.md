@@ -6,19 +6,19 @@ What still has to be confirmed in the client, and the release steps.
 
 ### Plan 5 fading
 
-- [ ] Opacity out of combat 40% on a bar: it fades out of combat and is full
+- [x] Opacity out of combat 40% on a bar: it fades out of combat and is full
   the moment combat starts.
-- [ ] Mouse-over shows it fully, also when moving across the gaps between
+- [x] Mouse-over shows it fully, also when moving across the gaps between
   buttons and at padding 0; with Full on mouse-over off it stays faded.
-- [ ] Edit Mode open: every faded bar is full; closed: faded again (LibEditMode's
+- [x] Edit Mode open: every faded bar is full; closed: faded again (LibEditMode's
   `enter` / `exit` callbacks fire on Forever).
-- [ ] Back to 100: the bar is full and stays full.
-- [ ] Action Bar 1 fades too: `/dump MainActionBar ~= nil` prints `true` and
+- [x] Back to 100: the bar is full and stays full.
+- [x] Action Bar 1 fades too: `/dump MainActionBar ~= nil` prints `true` and
   `/abars fade` has a `bar1:` line. Its art hiding and padding-0 frame still
   work (they look the frame up the same way).
-- [ ] Buttons on a faded bar still work (click and key).
-- [ ] The proc glow, our button art and the padding-0 frame fade with the bar.
-- [ ] No Lua errors; no `AnotherBars` lines in the taint log after a fight
+- [x] Buttons on a faded bar still work (click and key).
+- [x] The proc glow, our button art and the padding-0 frame fade with the bar.
+- [x] No Lua errors; no `AnotherBars` lines in the taint log after a fight
   with a faded bar.
 
 Results:
@@ -26,7 +26,7 @@ Results:
 - 2026-11-27: Action Bars 2-8 fade. Action Bar 1 did not: `MainMenuBar` is
   nil on Forever (its buttons sit in `MainActionBarButtonContainer1`), so the
   main bar is now looked up as `MainActionBar` first.
-- 2026-11-27: after that fix Action Bar 1 fades too.
+- 2026-11-27: after that fix Action Bar 1 fades too. All items pass.
 
 
 ### Plan 4 padding and art
